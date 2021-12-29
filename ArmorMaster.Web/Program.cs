@@ -1,6 +1,8 @@
+using ArmorMaster.Data.Data;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -17,7 +19,7 @@ namespace ArmorMaster.Web
 
             var host = CreateWebHostBuilder(args).Build();
 
-            // SeedDatabase(host);
+            SeedDatabase(host);
 
             host.Run();
         }
@@ -26,20 +28,16 @@ namespace ArmorMaster.Web
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>();
 
-        //private static void SeedDatabase(IWebHost host)
-        //{
-        //    using (var scope = host.Services.CreateScope())
-        //    {
-        //        var services = scope.ServiceProvider;
+        private static void SeedDatabase(IWebHost host)
+        {
+            using var scope = host.Services.CreateScope();
+            var services = scope.ServiceProvider;
 
 
 
 
-        //        var aspnetRunContext = services.GetRequiredService<SpotifyAnalogAppContext>();
-        //        SpotifyAnalogAppContextSeed.SeedAsync(aspnetRunContext).Wait();
-
-
-        //    }
-        //}
+            var aspnetRunContext = services.GetRequiredService<ArmorMasterContext>();
+            ArmorMasterContextSeed.SeedAsync(aspnetRunContext).Wait();
+        }
     }
 }

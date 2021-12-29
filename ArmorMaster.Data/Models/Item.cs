@@ -10,6 +10,7 @@ namespace ArmorMaster.Data.Models
     {
         public int ItemId { get; set; }
         public string Type { get; set; }
+        public int Potential { get; set; }
 
         public ICollection<ItemStat> ItemStats { get; set; }
         public Player Player { get; set; }
