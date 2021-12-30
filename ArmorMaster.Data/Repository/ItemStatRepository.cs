@@ -1,6 +1,7 @@
 ﻿using ArmorMaster.Data.Data;
 using ArmorMaster.Data.Models;
 using ArmorMaster.Data.Repository.Base;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,14 +16,15 @@ namespace ArmorMaster.Data.Repository
         {
         }
 
-        public Task<IEnumerable<ItemStat>> GetItemStatsByItemIdAsync(int itemId)
+        public async Task<IEnumerable<ItemStat>> GetItemStatsByItemIdAsync(int itemId)
         {
-            throw new NotImplementedException();
+            return await _dbContext.ItemStats.Where(x => x.Item.ItemId.Equals(itemId)).Include(x => x.ItemStatType).ToListAsync();
         }
 
-        public Task UpdateMultipleItemStatsAsync(IEnumerable<ItemStat> itemStats)
+        public async Task UpdateMultipleItemStatsAsync(IEnumerable<ItemStat> itemStats)
         {
-            throw new NotImplementedException();
+            _dbContext.Set<ItemStat>().UpdateRange(itemStats);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using ArmorMaster.Data.Data;
 using ArmorMaster.Data.Models;
 using ArmorMaster.Data.Repository.Base;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,29 +16,29 @@ namespace ArmorMaster.Data.Repository
         {
         }
 
-        public Task CreatePlayerAsync(Player player)
+        public async Task CreatePlayerAsync(Player player)
         {
-            throw new NotImplementedException();
+            await AddAsync(player);
         }
 
-        public Task DeletePlayerAsync(Player player)
+        public async Task DeletePlayerAsync(Player player)
         {
-            throw new NotImplementedException();
+            await DeleteAsync(player);
         }
 
-        public Task<IEnumerable<Player>> GetAllPlayersAsync()
+        public async Task<IEnumerable<Player>> GetAllPlayersAsync()
         {
-            throw new NotImplementedException();
+            return await _dbContext.Players.Select(x => x).Include(x => x.EquipedItems).ToListAsync();
         }
 
-        public Task<Player> GetPlayerByIdAsync(int id)
+        public async Task<Player> GetPlayerByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _dbContext.Players.Where(x => x.PlayerID.Equals(id)).Include(x => x.EquipedItems).FirstOrDefaultAsync();
         }
 
-        public Task UpdatePlayerAsync(Player player)
+        public async Task UpdatePlayerAsync(Player player)
         {
-            throw new NotImplementedException();
+            await UpdateAsync(player);
         }
     }
 }

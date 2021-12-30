@@ -32,15 +32,12 @@ namespace ArmorMaster.Data.Data
         {
             return new List<ItemStatType>
             {
-                new ItemStatType() {StatName ="Weapon"},
-                new ItemStatType() {StatName ="Chest"},
-                new ItemStatType() {StatName ="Legs"},
-                new ItemStatType() {StatName ="Hands"},
-                new ItemStatType() {StatName ="Helmet"},
-                new ItemStatType() {StatName ="Ring"},
-                new ItemStatType() {StatName ="Talisman"},
-                new ItemStatType() {StatName ="Belt"},
-                new ItemStatType() {StatName ="Cloak"}
+                new ItemStatType() {StatName ="Critical Chance"},
+                new ItemStatType() {StatName ="Health"},
+                new ItemStatType() {StatName ="Constitution"},
+                new ItemStatType() {StatName ="Strength"},
+                new ItemStatType() {StatName ="Agility"},
+                new ItemStatType() {StatName ="Armor Pierce Chance"}
             };
         }
     }

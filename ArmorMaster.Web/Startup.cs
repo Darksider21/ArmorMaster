@@ -14,6 +14,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ArmorMaster.Data.Repository.Base;
+using ArmorMaster.Data.Repository;
+using ArmorMaster.Buisiness.Services.ServiceInterfaces;
+using ArmorMaster.Buisiness.Services;
 
 namespace ArmorMaster.Web
 {
@@ -39,11 +43,20 @@ namespace ArmorMaster.Web
             });
 
             //data
-            services.AddDbContext<ArmorMasterContext>(c =>
-                c.UseSqlServer(Configuration.GetConnectionString("ArmorMasterConnection"))
-                );
+            ConfigureDatabase(services);
+            services.AddScoped<IItemRepository, ItemRepository>();
+            services.AddScoped<IPlayerRepository, PlayerRepository>();
+            services.AddScoped<IItemStatRepository, ItemStatRepository>();
+            services.AddScoped<ItemStatTypeRepository, ItemStatTypeRepository>();
 
             //service
+            services.AddScoped<IItemService, ItemService>();
+            services.AddScoped<IPlayerService, PlayerService>();
+            services.AddScoped<IItemStatService, ItemStatService>();
+            services.AddScoped<IPlayerItemService,PlayerService>();
+            services.AddScoped<IItemStatTypeService, ItemStatTypeService>();
+            services.AddScoped<IConstantsProvider, ContantsProvider>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,6 +80,13 @@ namespace ArmorMaster.Web
             {
                 endpoints.MapControllers();
             });
+        }
+
+        public void ConfigureDatabase(IServiceCollection services)
+        {
+            services.AddDbContext<ArmorMasterContext>(c =>
+                c.UseSqlServer(Configuration.GetConnectionString("ArmorMasterConnection"))
+                );
         }
 
        

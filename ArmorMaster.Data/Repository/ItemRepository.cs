@@ -1,6 +1,7 @@
 ﻿using ArmorMaster.Data.Data;
 using ArmorMaster.Data.Models;
 using ArmorMaster.Data.Repository.Base;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,34 +16,34 @@ namespace ArmorMaster.Data.Repository
         {
         }
 
-        public Task CreateItemAsync(Item item)
+        public async Task CreateItemAsync(Item item)
         {
-            throw new NotImplementedException();
+            await AddAsync(item);
         }
 
-        public Task DeleteItemAsync(Item item)
+        public async Task DeleteItemAsync(Item item)
         {
-            throw new NotImplementedException();
+            await DeleteAsync(item);
         }
 
-        public Task<IEnumerable<Item>> GetAllItemsAsync()
+        public async Task<IEnumerable<Item>> GetAllItemsAsync()
         {
-            throw new NotImplementedException();
+            return await _dbContext.Items.Select(x => x).Include(x => x.ItemStats).ToListAsync();
         }
 
-        public Task<Item> GetItemByIdAsync(int id)
+        public async Task<Item> GetItemByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _dbContext.Items.Where(x => x.ItemId.Equals(id)).Include(x => x.ItemStats).FirstOrDefaultAsync();
         }
 
-        public Task<IEnumerable<Item>> GetItemsByMultipleIdsAsync(int[] ids)
+        public async Task<IEnumerable<Item>> GetItemsByMultipleIdsAsync(int[] ids)
         {
-            throw new NotImplementedException();
+            return await _dbContext.Items.Where(x => ids.Contains(x.ItemId)).Include(x => x.ItemStats).ToListAsync();
         }
 
-        public Task UpdateItemAsync(Item item)
+        public async Task UpdateItemAsync(Item item)
         {
-            throw new NotImplementedException();
+            await UpdateAsync(item);
         }
     }
 }

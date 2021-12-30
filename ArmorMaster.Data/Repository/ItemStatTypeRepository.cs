@@ -1,6 +1,7 @@
 ﻿using ArmorMaster.Data.Data;
 using ArmorMaster.Data.Models;
 using ArmorMaster.Data.Repository.Base;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,19 +16,19 @@ namespace ArmorMaster.Data.Repository
         {
         }
 
-        public Task<IEnumerable<ItemStatType>> GetAllItemStatTypesAsync()
+        public async Task<IEnumerable<ItemStatType>> GetAllItemStatTypesAsync()
         {
-            throw new NotImplementedException();
+            return await _dbContext.ItemStatTypes.Select(x => x).ToListAsync();
         }
 
-        public Task<ItemStatType> GetItemStatByNameAsync(string statName)
+        public async Task<ItemStatType> GetItemStatByNameAsync(string statName)
         {
-            throw new NotImplementedException();
+            return await _dbContext.ItemStatTypes.Where(x => x.StatName == statName).FirstOrDefaultAsync();
         }
 
-        public Task<ItemStatType> GetItemStatTypeByIdAsync(int id)
+        public async Task<ItemStatType> GetItemStatTypeByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _dbContext.ItemStatTypes.Where(x => x.ItemStatTypeId.Equals(id)).FirstOrDefaultAsync();
         }
     }
 }
