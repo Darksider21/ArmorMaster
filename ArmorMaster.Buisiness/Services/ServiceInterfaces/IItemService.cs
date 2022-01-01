@@ -14,7 +14,7 @@ namespace ArmorMaster.Buisiness.Services.ServiceInterfaces
         public Task<IEnumerable<ItemModel>> GetAllItemsAsync();
         public Task<ItemModel> GetItemByIdAsync(int id);
         public Task<IEnumerable<ItemModel>> GetItemsByMultipleIdsAsync(int[] ids);
-        public Task CreateItemAsync(CreateItemModel model);
+        public Task<ItemModel> CreateItemAsync(CreateItemModel model);
         public Task DeleteItemAsync(int id);
     }
 }

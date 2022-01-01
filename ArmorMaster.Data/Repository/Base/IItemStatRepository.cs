@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ArmorMaster.Data.Repository
+namespace ArmorMaster.Data.Repository.Base
 {
     public interface IItemStatRepository
     {

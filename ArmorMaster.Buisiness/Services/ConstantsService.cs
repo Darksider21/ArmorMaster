@@ -92,7 +92,23 @@ namespace ArmorMaster.Buisiness.Services
                 throw new InvalidItemTypeException();
             }
             int itemsBasePotential = ItemsPotentialsList.Where(x => x.Level.Equals(currentItemsLvl)).Select(x => x.Level).FirstOrDefault();
+
+            return CalculatePotential(itemsBasePotential, currentItemType);
             
+        }
+
+        public bool ItemLevelIsValid(int lvl)
+        {
+            return availiableItemLevels.Contains(lvl);
+        }
+
+        public bool ItemTypeExists(string type)
+        {
+            return availiableItemTypes.Contains(type);
+        }
+
+        private int CalculatePotential(int itemsBasePotential , string currentItemType)
+        {
             if (currentItemType == "Weapon")
             {
                 return Convert.ToInt32(itemsBasePotential * weaponPotentialMultipier);
@@ -102,7 +118,6 @@ namespace ArmorMaster.Buisiness.Services
                 return Convert.ToInt32(itemsBasePotential * specialEquipmentPotentialMultiplier);
             }
             return itemsBasePotential;
-            
         }
     }
 }

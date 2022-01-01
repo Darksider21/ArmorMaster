@@ -1,6 +1,9 @@
 ﻿using ArmorMaster.Buisiness.DTO.ModelsDTO;
 using ArmorMaster.Buisiness.DTO.RequestDTO;
+using ArmorMaster.Buisiness.Exceptions;
+using ArmorMaster.Buisiness.Mapper;
 using ArmorMaster.Buisiness.Services.ServiceInterfaces;
+using ArmorMaster.Data.Models;
 using ArmorMaster.Data.Repository.Base;
 using System;
 using System.Collections.Generic;
@@ -13,34 +16,68 @@ namespace ArmorMaster.Buisiness.Services
     public class ItemService : IItemService
     {
         private readonly IItemRepository itemRepository;
-        public ItemService(IItemRepository itemRepository)
+        private readonly IConstantsService constantsService;
+        private readonly IItemStatService itemStatService;
+        public ItemService(IItemRepository itemRepository, IConstantsService constantsService, IItemStatService itemStatService)
         {
             this.itemRepository = itemRepository;
+            this.constantsService = constantsService;
+            this.itemStatService = itemStatService;
         }
 
-        public Task CreateItemAsync(CreateItemModel model)
+        public async Task<ItemModel> CreateItemAsync(CreateItemModel model)
         {
-            throw new NotImplementedException();
+            if (!constantsService.ItemLevelIsValid(model.Level))
+            {
+                throw new InvalidItemLevelException();
+            }
+            if (!constantsService.ItemTypeExists(model.Type))
+            {
+                throw new InvalidItemTypeException();
+            }
+            var itemsPotential = constantsService.GetPotentialByItemLvlAndItemType(model.Level, model.Type);
+            var newItem = new Item() { Level = model.Level, Type = model.Type, Potential = itemsPotential};
+            var itemStats = await itemStatService.GenerateItemStatsForItemAsync(newItem);
+            newItem.ItemStats = itemStats.ToList();
+            await itemRepository.CreateItemAsync(newItem);
+
+            return ObjectMapper.Mapper.Map<ItemModel>(newItem);
         }
 
-        public Task DeleteItemAsync(int id)
+        public async Task DeleteItemAsync(int id)
         {
-            throw new NotImplementedException();
+            var item = await itemRepository.GetItemByIdAsync(id);
+            if (item == null)
+            {
+                throw new InvalidIdException();
+            }
+            await itemRepository.DeleteItemAsync(item);
         }
 
-        public Task<IEnumerable<ItemModel>> GetAllItemsAsync()
+        public async Task<IEnumerable<ItemModel>> GetAllItemsAsync()
         {
-            throw new NotImplementedException();
+            var items = await itemRepository.GetAllItemsAsync();
+            return ObjectMapper.Mapper.Map<IEnumerable<ItemModel>>(items);
         }
 
-        public Task<ItemModel> GetItemByIdAsync(int id)
+        public async Task<ItemModel> GetItemByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var item = await itemRepository.GetItemByIdAsync(id);
+            if (item == null)
+            {
+                throw new InvalidIdException();
+            }
+            return ObjectMapper.Mapper.Map<ItemModel>(item);
         }
 
-        public Task<IEnumerable<ItemModel>> GetItemsByMultipleIdsAsync(int[] ids)
+        public async Task<IEnumerable<ItemModel>> GetItemsByMultipleIdsAsync(int[] ids)
         {
-            throw new NotImplementedException();
+            var items = await itemRepository.GetItemsByMultipleIdsAsync(ids);
+            if (items == null)
+            {
+                throw new InvalidIdException();
+            }
+            return ObjectMapper.Mapper.Map<IEnumerable<ItemModel>>(items);
         }
     }
 }
