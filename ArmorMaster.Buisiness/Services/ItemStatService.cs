@@ -12,9 +12,28 @@ namespace ArmorMaster.Buisiness.Services
     public class ItemStatService : IItemStatService
     {
         private readonly IItemStatRepository itemStatRepository;
-        public ItemStatService(IItemStatRepository itemStatRepository)
+        private readonly IItemService itemService;
+        public ItemStatService(IItemStatRepository itemStatRepository, IItemService itemService)
         {
             this.itemStatRepository = itemStatRepository;
+            this.itemService = itemService;
+        }
+
+        
+
+        public Task<IEnumerable<ItemStat>> GenerateLackingStatsForItemAsync(int itemId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<ItemStat>> GenerateNewStatsForItem(int itemId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<ItemStat>> GenerateNewStatsForItemAsync(int itemId)
+        {
+            throw new NotImplementedException();
         }
 
         public Task<IEnumerable<ItemStat>> GetItemStatsByItemIdAsync(int itemId)
