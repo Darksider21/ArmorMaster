@@ -18,11 +18,13 @@ namespace ArmorMaster.Buisiness.Services
         private readonly IItemRepository itemRepository;
         private readonly IConstantsService constantsService;
         private readonly IItemStatService itemStatService;
-        public ItemService(IItemRepository itemRepository, IConstantsService constantsService, IItemStatService itemStatService)
+        private readonly IItemStatRepository itemStatRepository;
+        public ItemService(IItemRepository itemRepository, IConstantsService constantsService, IItemStatService itemStatService, IItemStatRepository itemStatRepository)
         {
             this.itemRepository = itemRepository;
             this.constantsService = constantsService;
             this.itemStatService = itemStatService;
+            this.itemStatRepository = itemStatRepository;
         }
 
         public async Task<ItemModel> CreateItemAsync(CreateItemModel model)
@@ -50,6 +52,7 @@ namespace ArmorMaster.Buisiness.Services
             {
                 throw new InvalidIdException();
             }
+            await itemStatRepository.DeleteMultipleItemStatsAsync(item.ItemStats);
             await itemRepository.DeleteItemAsync(item);
         }
 

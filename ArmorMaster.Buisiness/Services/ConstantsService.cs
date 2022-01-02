@@ -21,7 +21,6 @@ namespace ArmorMaster.Buisiness.Services
             "Constitution",
             "Strength",
             "Agility",
-            "Armor Pierce Chance"
         };
         private readonly List<int> availiableItemLevels = new List<int>()
            {
@@ -40,7 +39,6 @@ namespace ArmorMaster.Buisiness.Services
                 new ItemStatCost() {StatType ="Constitution", StatAmount = 1 , StatCost = 10},
                 new ItemStatCost() {StatType ="Strength", StatAmount = 1 , StatCost = 10},
                 new ItemStatCost() {StatType ="Agility", StatAmount = 1, StatCost = 10},
-                new ItemStatCost() {StatType ="Armor Pierce Chance", StatAmount =0.02 , StatCost = 10}
             };
 
         

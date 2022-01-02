@@ -16,6 +16,12 @@ namespace ArmorMaster.Data.Repository
         {
         }
 
+        public async Task DeleteMultipleItemStatsAsync(IEnumerable<ItemStat> itemStats)
+        {
+             _dbContext.Set<ItemStat>().RemoveRange(itemStats);
+            await _dbContext.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<ItemStat>> GetItemStatsByItemIdAsync(int itemId)
         {
             return await _dbContext.ItemStats.Where(x => x.Item.ItemId.Equals(itemId)).ToListAsync();

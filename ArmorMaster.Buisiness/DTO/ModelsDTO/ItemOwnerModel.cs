@@ -11,6 +11,6 @@ namespace ArmorMaster.Buisiness.DTO.ModelsDTO
     {
         public int ItemId { get; set; }
 
-        public Player Player { get; set; }
+        public int PlayerId { get; set; }
     }
 }

@@ -9,11 +9,10 @@ namespace ArmorMaster.Buisiness.DTO.ModelsDTO
 {
     public class ItemStatModel
     {
-        public int ItemStatID { get; set; }
+        public string StatType { get; set; }
 
         public double StatQuantity { get; set; }
 
-        public string StatType { get; set; }
 
         
     }

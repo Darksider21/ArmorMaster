@@ -11,5 +11,6 @@ namespace ArmorMaster.Data.Repository.Base
     {
         public Task<IEnumerable<ItemStat>> GetItemStatsByItemIdAsync(int itemId);
         public Task UpdateMultipleItemStatsAsync(IEnumerable<ItemStat> itemStats);
+        public Task DeleteMultipleItemStatsAsync(IEnumerable<ItemStat> itemStats);
     }
 }

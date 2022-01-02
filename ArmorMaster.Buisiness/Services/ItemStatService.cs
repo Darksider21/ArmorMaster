@@ -1,4 +1,7 @@
-﻿using ArmorMaster.Buisiness.DTO.ModelsDTO.ConstantsModels;
+﻿using ArmorMaster.Buisiness.DTO.ModelsDTO;
+using ArmorMaster.Buisiness.DTO.ModelsDTO.ConstantsModels;
+using ArmorMaster.Buisiness.Exceptions;
+using ArmorMaster.Buisiness.Mapper;
 using ArmorMaster.Buisiness.Services.ServiceInterfaces;
 using ArmorMaster.Data.Models;
 using ArmorMaster.Data.Repository;
@@ -16,23 +19,54 @@ namespace ArmorMaster.Buisiness.Services
         private readonly IItemStatRepository itemStatRepository;
         private readonly IConstantsService constantsService;
         private readonly IRandomProvider randomProvider;
+        private readonly IItemRepository itemRepository;
+
         public ItemStatService(IItemStatRepository itemStatRepository, 
             IConstantsService constantsService, 
-            IRandomProvider randomProvider)
+            IRandomProvider randomProvider, IItemRepository itemRepository)
         {
             this.itemStatRepository = itemStatRepository;
             this.constantsService = constantsService;
             this.randomProvider = randomProvider;
+            this.itemRepository = itemRepository;
         }
 
-        public  async Task<IEnumerable<ItemStat>> GenerateLackingStatsForItemAsync(Item item)
+        public  async Task GenerateLackingStatsForItemAsync(Item item)
         {
-            throw new NotImplementedException();
+            var Existingitem = await itemRepository.GetItemByIdAsync(item.ItemId);
+            if (Existingitem == null)
+            {
+                throw new InvalidIdException();
+            }
+            var originalItemStats = item.ItemStats;
+            var originalStatsPotential = GetItemPotentialByStats(originalItemStats);
+            var potentialToSpend = item.Potential - originalStatsPotential;
+            if (potentialToSpend <=0)
+            {
+                await GenerateNewStatsForItemAsync(item.ItemId);
+                return;
+            }
+            var additionalItemStats = GenerateItemStatsByPotential(potentialToSpend);
+            AddNewStatsToPrevious(originalItemStats, additionalItemStats);
+            await itemStatRepository.UpdateMultipleItemStatsAsync(originalItemStats);
+
+
         }
 
-        public async Task<IEnumerable<ItemStat>> GenerateNewStatsForItemAsync(int itemId)
+
+        public async Task<IEnumerable<ItemStatModel>> GenerateNewStatsForItemAsync(int itemId)
         {
-            throw new NotImplementedException();
+            var item = await itemRepository.GetItemByIdAsync(itemId);
+            if (item == null)
+            {
+                throw new InvalidIdException();
+            }
+            var newItemStats = CreateItemStatsForItem(item.Potential);
+            var originalItemStats = item.ItemStats;
+            MapNewItemStatsToOriginalStats(newItemStats, originalItemStats);
+            await itemStatRepository.UpdateMultipleItemStatsAsync(originalItemStats);
+
+            return ObjectMapper.Mapper.Map<IEnumerable<ItemStatModel>>(originalItemStats);
         }
 
         public  IEnumerable<ItemStat> GenerateItemStatsByPotential(int potential)
@@ -43,6 +77,58 @@ namespace ArmorMaster.Buisiness.Services
             return itemStats;
 
         }
+        #region privateMethods
+        private int GetItemPotentialByStats(ICollection<ItemStat> originalStats)
+        {
+            int potential = 0;
+            var itemStatCosts = constantsService.GetAvailiableItemStatCosts();
+            foreach (var originalItemStat in originalStats)
+            {
+                foreach (var itemStatCost in itemStatCosts)
+                {
+                    if (originalItemStat.StatType.Equals(itemStatCost.StatType))
+                    {
+                        int potentialCost =  Convert.ToInt32((originalItemStat.StatQuantity / itemStatCost.StatAmount))  * itemStatCost.StatCost;
+                        potential += potentialCost;
+                    }
+                }
+            }
+
+            return potential;
+        }
+        private static void AddNewStatsToPrevious(ICollection<ItemStat> originalStats, IEnumerable<ItemStat> additionalItemStats)
+        {
+            foreach (var aditionalItemStat in additionalItemStats)
+            {
+                foreach (var originalItemStat in originalStats)
+                {
+                    if (aditionalItemStat.StatType.Equals(originalItemStat.StatType))
+                    {
+                        originalItemStat.StatQuantity += aditionalItemStat.StatQuantity;
+
+
+                        if (originalItemStat.StatType.Equals("Critical Chance"))
+                        {
+                            originalItemStat.StatQuantity = Math.Round(originalItemStat.StatQuantity, 2);
+                        }
+                    }
+                }
+            }
+        }
+        private static void MapNewItemStatsToOriginalStats(List<ItemStat> newItemStats, ICollection<ItemStat> originalItemStats)
+        {
+            foreach (var newItemStat in newItemStats)
+            {
+                foreach (var originalItem in originalItemStats)
+                {
+                    if (originalItem.StatType.Equals(newItemStat.StatType))
+                    {
+                        originalItem.StatQuantity = newItemStat.StatQuantity;
+                    }
+                }
+            }
+        }
+
 
         
 
@@ -66,7 +152,11 @@ namespace ArmorMaster.Buisiness.Services
             foreach (var statToGenerate in generationModel)
             {
                 var statQuantity = statToGenerate.BaseAmountToAdd * statToGenerate.TimesToAddBaseAmount;
-                var generatedItemStat = new ItemStat() { StatType = statToGenerate.StatType, StatQuantity = statQuantity };
+                var generatedItemStat = new ItemStat() { StatType = statToGenerate.StatType, StatQuantity =  statQuantity };
+                if (generatedItemStat.StatType == "Critical Chance")
+                {
+                    generatedItemStat.StatQuantity = Math.Round(statQuantity, 2);
+                }
                 itemStats.Add(generatedItemStat);
             }
 
@@ -74,5 +164,6 @@ namespace ArmorMaster.Buisiness.Services
 
             return itemStats;
         }
+        #endregion
     }
 }

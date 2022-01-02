@@ -20,6 +20,21 @@ namespace ArmorMaster.Web.Controllers
             this.itemService = itemService;
         }
 
+        [Route("GetAllItems")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllItems()
+        {
+            var items = await itemService.GetAllItemsAsync();
+            return Ok(items);
+        }
+
+        [Route("GetItemById")]
+        [HttpGet]
+        public async Task<IActionResult> GetItemById(int id)
+        {
+            var item = await itemService.GetItemByIdAsync(id);
+            return Ok(item);
+        }
         [Route("CreateItem")]
         [HttpPost]
         public async Task<IActionResult> CreateItem(CreateItemModel model)
@@ -30,6 +45,14 @@ namespace ArmorMaster.Web.Controllers
                 return Ok(item);
             }
             return BadRequest();
+        }
+
+        [Route("DeleteItem")]
+        [HttpDelete]
+        public async Task<IActionResult> DeleteItem(int itemId)
+        {
+            await itemService.DeleteItemAsync(itemId);
+            return NoContent();
         }
     }
 }

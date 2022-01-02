@@ -23,6 +23,7 @@ namespace ArmorMaster.Data.Repository
 
         public async Task DeleteItemAsync(Item item)
         {
+
             await DeleteAsync(item);
         }
 
