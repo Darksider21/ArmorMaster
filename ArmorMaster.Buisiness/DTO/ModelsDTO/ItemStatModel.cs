@@ -13,8 +13,8 @@ namespace ArmorMaster.Buisiness.DTO.ModelsDTO
 
         public double StatQuantity { get; set; }
 
-        public ItemStatType ItemStatType { get; set; }
+        public string StatType { get; set; }
 
-        public Item Item { get; set; }
+        
     }
 }

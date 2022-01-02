@@ -10,5 +10,6 @@ namespace ArmorMaster.Buisiness.Services.ServiceInterfaces
     {
         public  Random CurrentRandom { get; }
         public int Next(int lowBarier, int heighBarier);
+        public int Next(int upperBarier);
     }
 }

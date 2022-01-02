@@ -13,6 +13,7 @@ namespace ArmorMaster.Buisiness.Services.ServiceInterfaces
         public IEnumerable<int> GetAvailiableItemLevels();
         public IEnumerable<string> GetAvailiableItemTypes();
         public IEnumerable<ItemStatCost> GetAvailiableItemStatCosts();
+        public IEnumerable<string> GetAvailiableItemStatTypes();
         public int GetPotentialByItemLvlAndItemType(int itemLvl,string itemType);
 
         public bool ItemTypeExists(string type);

@@ -36,9 +36,8 @@ namespace ArmorMaster.Buisiness.Services
                 throw new InvalidItemTypeException();
             }
             var itemsPotential = constantsService.GetPotentialByItemLvlAndItemType(model.Level, model.Type);
-            var newItem = new Item() { Level = model.Level, Type = model.Type, Potential = itemsPotential};
-            var itemStats = await itemStatService.GenerateItemStatsForItemAsync(newItem);
-            newItem.ItemStats = itemStats.ToList();
+            var itemStats = itemStatService.GenerateItemStatsByPotential(itemsPotential);
+            var newItem = new Item() { Level = model.Level, Type = model.Type, Potential = itemsPotential , ItemStats = itemStats.ToList()};
             await itemRepository.CreateItemAsync(newItem);
 
             return ObjectMapper.Mapper.Map<ItemModel>(newItem);

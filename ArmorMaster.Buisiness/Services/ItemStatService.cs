@@ -1,4 +1,5 @@
-﻿using ArmorMaster.Buisiness.Services.ServiceInterfaces;
+﻿using ArmorMaster.Buisiness.DTO.ModelsDTO.ConstantsModels;
+using ArmorMaster.Buisiness.Services.ServiceInterfaces;
 using ArmorMaster.Data.Models;
 using ArmorMaster.Data.Repository;
 using ArmorMaster.Data.Repository.Base;
@@ -13,16 +14,13 @@ namespace ArmorMaster.Buisiness.Services
     public class ItemStatService : IItemStatService
     {
         private readonly IItemStatRepository itemStatRepository;
-        private readonly IItemService itemService;
         private readonly IConstantsService constantsService;
-        private readonly IItemStatTypeRepository itemStatTypeRepository;
         private readonly IRandomProvider randomProvider;
-        public ItemStatService(IItemStatRepository itemStatRepository, IItemService itemService,
-            IConstantsService constantsService, IItemStatTypeRepository itemStatTypeRepository,
+        public ItemStatService(IItemStatRepository itemStatRepository, 
+            IConstantsService constantsService, 
             IRandomProvider randomProvider)
         {
             this.itemStatRepository = itemStatRepository;
-            this.itemService = itemService;
             this.constantsService = constantsService;
             this.randomProvider = randomProvider;
         }
@@ -37,28 +35,43 @@ namespace ArmorMaster.Buisiness.Services
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<ItemStat>> GenerateItemStatsForItemAsync(Item item)
+        public  IEnumerable<ItemStat> GenerateItemStatsByPotential(int potential)
         {
-            var itemStats =  await CreateItemStatsForNewItem(item);
+            var itemStats =  CreateItemStatsForItem(potential);
 
-            var generatedItemStats = await GenerateItemStatsValues(itemStats);
+
+            return itemStats;
 
         }
 
-        private  Task<List<ItemStat>> GenerateItemStatsValues(List<ItemStat> itemStats)
-        {
-            var statCosts = constantsService.GetAvailiableItemStatCosts();
-        }
+        
 
-        private  async Task<List<ItemStat>> CreateItemStatsForNewItem(Item item)
+        private List<ItemStat> CreateItemStatsForItem(int potential)
         {
-            var availiableItemStatTypes = await itemStatTypeRepository.GetAllItemStatTypesAsync();
             List<ItemStat> itemStats = new List<ItemStat>();
-            foreach (var itemStatType in availiableItemStatTypes)
+            var existingItemStats = constantsService.GetAvailiableItemStatTypes();
+            var statCosts = constantsService.GetAvailiableItemStatCosts();
+
+            var generationModel = statCosts.Select(x => new StatGeneratorModel() { StatType = x.StatType, BaseAmountToAdd = x.StatAmount, TimesToAddBaseAmount = 0
+            ,BaseStatCost = x.StatCost}).ToList();
+
+            while(potential > 0)
             {
-                var newItemStat = new ItemStat() { Item = item, ItemStatType = itemStatType };
-                itemStats.Add(newItemStat);
+                var randomNumber = randomProvider.Next(generationModel.Count());
+                 
+                generationModel[randomNumber].TimesToAddBaseAmount++;
+                potential -= generationModel[randomNumber].BaseStatCost;
+
             }
+            foreach (var statToGenerate in generationModel)
+            {
+                var statQuantity = statToGenerate.BaseAmountToAdd * statToGenerate.TimesToAddBaseAmount;
+                var generatedItemStat = new ItemStat() { StatType = statToGenerate.StatType, StatQuantity = statQuantity };
+                itemStats.Add(generatedItemStat);
+            }
+
+
+
             return itemStats;
         }
     }

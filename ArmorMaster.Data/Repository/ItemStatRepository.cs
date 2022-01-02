@@ -18,7 +18,7 @@ namespace ArmorMaster.Data.Repository
 
         public async Task<IEnumerable<ItemStat>> GetItemStatsByItemIdAsync(int itemId)
         {
-            return await _dbContext.ItemStats.Where(x => x.Item.ItemId.Equals(itemId)).Include(x => x.ItemStatType).ToListAsync();
+            return await _dbContext.ItemStats.Where(x => x.Item.ItemId.Equals(itemId)).ToListAsync();
         }
 
         public async Task UpdateMultipleItemStatsAsync(IEnumerable<ItemStat> itemStats)

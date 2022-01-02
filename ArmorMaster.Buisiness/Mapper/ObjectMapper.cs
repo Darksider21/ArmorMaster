@@ -33,7 +33,6 @@ namespace ArmorMaster.Buisiness.Mapper
             CreateMap<Item, ItemModel>().ReverseMap();
             CreateMap<Player, PlayerModel>().ReverseMap();
             CreateMap<ItemStat, ItemStatModel>().ReverseMap();
-            CreateMap<ItemStatType, ItemStatTypeModel>().ReverseMap();
             CreateMap<Item, ItemOwnerModel>().ReverseMap();
         }
 

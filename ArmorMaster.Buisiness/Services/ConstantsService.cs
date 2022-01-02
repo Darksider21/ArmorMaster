@@ -14,6 +14,15 @@ namespace ArmorMaster.Buisiness.Services
     {
         private readonly double weaponPotentialMultipier = 1.5;
         private readonly double specialEquipmentPotentialMultiplier = 1.25;
+        private readonly List<string> availiableItemStatTypes = new List<string>()
+        {
+            "Critical Chance",
+            "Health",
+            "Constitution",
+            "Strength",
+            "Agility",
+            "Armor Pierce Chance"
+        };
         private readonly List<int> availiableItemLevels = new List<int>()
            {
                1,
@@ -26,12 +35,12 @@ namespace ArmorMaster.Buisiness.Services
 
         private readonly List<ItemStatCost> availiableItemStatCosts = new List<ItemStatCost>()
             {
-                new ItemStatCost() {StatName ="Critical Chance" , StatAmount =0.1 , StatCost = 50},
-                new ItemStatCost() {StatName ="Health", StatAmount = 20 , StatCost = 10},
-                new ItemStatCost() {StatName ="Constitution", StatAmount = 1 , StatCost = 10},
-                new ItemStatCost() {StatName ="Strength", StatAmount = 1 , StatCost = 10},
-                new ItemStatCost() {StatName ="Agility", StatAmount = 1, StatCost = 10},
-                new ItemStatCost() {StatName ="Armor Pierce Chance", StatAmount =0.1 , StatCost = 50}
+                new ItemStatCost() {StatType ="Critical Chance" , StatAmount =0.02 , StatCost = 10},
+                new ItemStatCost() {StatType ="Health", StatAmount = 20 , StatCost = 10},
+                new ItemStatCost() {StatType ="Constitution", StatAmount = 1 , StatCost = 10},
+                new ItemStatCost() {StatType ="Strength", StatAmount = 1 , StatCost = 10},
+                new ItemStatCost() {StatType ="Agility", StatAmount = 1, StatCost = 10},
+                new ItemStatCost() {StatType ="Armor Pierce Chance", StatAmount =0.02 , StatCost = 10}
             };
 
         
@@ -79,6 +88,11 @@ namespace ArmorMaster.Buisiness.Services
             return availiableItemTypes;
         }
 
+        public IEnumerable<string> GetAvailiableItemStatTypes()
+        {
+            return availiableItemStatTypes;
+        }
+
         public int GetPotentialByItemLvlAndItemType(int itemLvl, string itemType)
         {
             int currentItemsLvl = availiableItemLevels.Where(x => x.Equals(itemLvl)).FirstOrDefault();
@@ -91,7 +105,7 @@ namespace ArmorMaster.Buisiness.Services
             {
                 throw new InvalidItemTypeException();
             }
-            int itemsBasePotential = ItemsPotentialsList.Where(x => x.Level.Equals(currentItemsLvl)).Select(x => x.Level).FirstOrDefault();
+            int itemsBasePotential = ItemsPotentialsList.Where(x => x.Level.Equals(currentItemsLvl)).Select(x => x.Potential).FirstOrDefault();
 
             return CalculatePotential(itemsBasePotential, currentItemType);
             

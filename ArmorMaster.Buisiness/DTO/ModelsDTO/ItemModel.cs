@@ -14,7 +14,7 @@ namespace ArmorMaster.Buisiness.DTO.ModelsDTO
         public int Potential { get; set; }
         public int Level { get; set; }
 
-        public ICollection<ItemStat> ItemStats { get; set; }
+        public ICollection<ItemStatModel> ItemStats { get; set; }
         public Player Player { get; set; }
     }
 }
