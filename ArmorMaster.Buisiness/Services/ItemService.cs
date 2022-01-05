@@ -41,7 +41,7 @@ namespace ArmorMaster.Buisiness.Services
                 throw new InvalidItemTypeException();
             }
             var itemTypeModel = constantsService.GetAvailiableItemTypes().Where(x => x.Type.Equals(model.Type)).FirstOrDefault();
-            var calculatedBaseStat = GenerateBaseStatForItem(model.Level, itemTypeModel.BaseStatInitialValue);
+            var calculatedBaseStat =  calculationService.GenerateBaseStatForItem(model.Level, itemTypeModel.BaseStatInitialValue);
             var itemsPotential = constantsService.GetPotentialByItemLvlAndItemType(model.Level, model.Type);
             var itemBonusStats = itemStatService.GenerateItemStatsByPotential(itemsPotential);
             var newItem = new Item() { ItemLevel = model.Level, ItemType = model.Type,
@@ -90,15 +90,6 @@ namespace ArmorMaster.Buisiness.Services
         }
 
 
-        private double GenerateBaseStatForItem(int itemLvl , double baseStatInitialValue)
-        {
-            var triangularNumberPerLevels = 20;
-            double triangularNumberFromLevels = (itemLvl / triangularNumberPerLevels);
-            int triangularNumberTofind = 1 + Convert.ToInt32(Math.Floor(triangularNumberFromLevels));
-            int triangularNumber = calculationService.GetNThTriangularNumber(triangularNumberTofind);
-            double stat = triangularNumber * baseStatInitialValue;
-            return stat;
-
-        }
+        
     }
 }

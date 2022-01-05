@@ -39,7 +39,40 @@ namespace ArmorMaster.Buisiness.Services
             new ItemType() {Type = "Belt" , BaseStatType = "Defence", BaseStatInitialValue = 25}
 
         };
-        
+        private readonly List<ItemUpgradeLevel> itemUpgradeLevels = new List<ItemUpgradeLevel>()
+        {
+            new ItemUpgradeLevel(){ UpgradeLevel = 0 , BaseStatIncreasePercentage = 0},
+            new ItemUpgradeLevel(){ UpgradeLevel = 1 , BaseStatIncreasePercentage = 5},
+            new ItemUpgradeLevel(){ UpgradeLevel = 2 , BaseStatIncreasePercentage = 5},
+            new ItemUpgradeLevel(){ UpgradeLevel = 3 , BaseStatIncreasePercentage = 5},
+            new ItemUpgradeLevel(){ UpgradeLevel = 4 , BaseStatIncreasePercentage = 5},
+            new ItemUpgradeLevel(){ UpgradeLevel = 5 , BaseStatIncreasePercentage = 5},
+            new ItemUpgradeLevel(){ UpgradeLevel = 6 , BaseStatIncreasePercentage = 5},
+
+            new ItemUpgradeLevel(){ UpgradeLevel = 7 , BaseStatIncreasePercentage = 5},
+            new ItemUpgradeLevel(){ UpgradeLevel = 8 , BaseStatIncreasePercentage = 5},
+            new ItemUpgradeLevel(){ UpgradeLevel = 9 , BaseStatIncreasePercentage = 5},
+            new ItemUpgradeLevel(){ UpgradeLevel = 10 , BaseStatIncreasePercentage = 5},
+            new ItemUpgradeLevel(){ UpgradeLevel = 11 , BaseStatIncreasePercentage = 5},
+            new ItemUpgradeLevel(){ UpgradeLevel = 12 , BaseStatIncreasePercentage = 10},
+
+            new ItemUpgradeLevel(){ UpgradeLevel = 13 , BaseStatIncreasePercentage = 10},
+            new ItemUpgradeLevel(){ UpgradeLevel = 14 , BaseStatIncreasePercentage = 10},
+            new ItemUpgradeLevel(){ UpgradeLevel = 15, BaseStatIncreasePercentage = 10},
+            new ItemUpgradeLevel(){ UpgradeLevel = 16 , BaseStatIncreasePercentage = 10},
+            new ItemUpgradeLevel(){ UpgradeLevel = 17 , BaseStatIncreasePercentage = 10},
+            new ItemUpgradeLevel(){ UpgradeLevel = 18 , BaseStatIncreasePercentage = 10},
+
+            new ItemUpgradeLevel(){ UpgradeLevel = 19 , BaseStatIncreasePercentage = 10},
+            new ItemUpgradeLevel(){ UpgradeLevel = 20 , BaseStatIncreasePercentage = 10},
+            new ItemUpgradeLevel(){ UpgradeLevel = 21 , BaseStatIncreasePercentage = 10},
+            new ItemUpgradeLevel(){ UpgradeLevel = 22 , BaseStatIncreasePercentage = 10},
+            new ItemUpgradeLevel(){ UpgradeLevel = 23 , BaseStatIncreasePercentage = 10},
+            new ItemUpgradeLevel(){ UpgradeLevel = 24 , BaseStatIncreasePercentage = 10},
+
+            new ItemUpgradeLevel(){UpgradeLevel = 25 , BaseStatIncreasePercentage = 25}
+
+        };
 
         
 
@@ -60,6 +93,10 @@ namespace ArmorMaster.Buisiness.Services
         public IEnumerable<ItemStatCost> GetAvailiableItemStatCosts()
         {
             return availiableItemStatCosts;
+        }
+        public IEnumerable<ItemUpgradeLevel> GetAvailiableItemUpgradeLevels()
+        {
+            return itemUpgradeLevels;
         }
 
         public IEnumerable<ItemType> GetAvailiableItemTypes()
@@ -105,5 +142,6 @@ namespace ArmorMaster.Buisiness.Services
             
             return itemsBasePotential;
         }
+
     }
 }

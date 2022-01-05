@@ -56,6 +56,7 @@ namespace ArmorMaster.Web
             services.AddScoped<IItemStatService, ItemStatService>();
             services.AddScoped<IConstantsService, ConstantsService>();
             services.AddScoped<ICalculationService, CalculationService>();
+            services.AddScoped<IItemUpgradeService, ItemUpgradeService>();
 
         }
 

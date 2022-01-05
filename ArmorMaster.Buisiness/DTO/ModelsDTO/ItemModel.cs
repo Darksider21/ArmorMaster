@@ -15,6 +15,8 @@ namespace ArmorMaster.Buisiness.DTO.ModelsDTO
         public int ItemLevel { get; set; }
         public string BaseStatType { get; set; }
         public double BaseStatQuantity { get; set; }
+        public int ItemUpgradeLevel { get; set; }
+
 
 
         public ICollection<ItemBonusStatModel> ItemBonusStats { get; set; }
