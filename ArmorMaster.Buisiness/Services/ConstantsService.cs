@@ -12,25 +12,9 @@ namespace ArmorMaster.Buisiness.Services
 {
     public class ConstantsService : IConstantsService
     {
-        private readonly double weaponPotentialMultipier = 1.5;
-        private readonly double specialEquipmentPotentialMultiplier = 1.25;
-        private readonly List<string> availiableItemStatTypes = new List<string>()
-        {
-            "Critical Chance",
-            "Health",
-            "Constitution",
-            "Strength",
-            "Agility",
-        };
-        private readonly List<int> availiableItemLevels = new List<int>()
-           {
-               1,
-               20,
-               40,
-               60,
-               80,
-               100
-           };
+        
+        
+        
 
         private readonly List<ItemStatCost> availiableItemStatCosts = new List<ItemStatCost>()
             {
@@ -41,26 +25,23 @@ namespace ArmorMaster.Buisiness.Services
                 new ItemStatCost() {StatType ="Agility", StatAmount = 1, StatCost = 10},
             };
 
+
+        private readonly List<ItemType> availibleItemTypes = new List<ItemType>()
+        {
+            new ItemType() {Type = "Helmet" , BaseStatType = "Defence", BaseStatInitialValue = 25},
+            new ItemType() {Type = "Arms" , BaseStatType = "Defence", BaseStatInitialValue = 25},
+            new ItemType() {Type = "Legs" , BaseStatType = "Defence", BaseStatInitialValue = 25},
+            new ItemType() {Type = "Chest" , BaseStatType = "Defence", BaseStatInitialValue = 25},
+            new ItemType() {Type = "Weapon" , BaseStatType = "Damage", BaseStatInitialValue = 60},
+            new ItemType() {Type = "Ring" , BaseStatType = "Constitution", BaseStatInitialValue = 20},
+            new ItemType() {Type = "Talisman" , BaseStatType = "Damage", BaseStatInitialValue = 40},
+            new ItemType() {Type = "Cloak" , BaseStatType = "Impact Damage Percent", BaseStatInitialValue = 5},
+            new ItemType() {Type = "Belt" , BaseStatType = "Defence", BaseStatInitialValue = 25}
+
+        };
         
 
-        private readonly List<string> availiableItemTypes = new List<string>()
-            {
-                "Helmet",
-                "Arms",
-                "Legs",
-                "Chest",
-                "Ring",
-                "Talisman",
-                "Weapon",
-                "Belt",
-                "Cloak"
-            };
-
-        private readonly List<string> specialEquipmentList = new List<string>()
-        {
-            "Ring",
-            "Talisman"
-        };
+        
 
         private readonly List<ItemPotentialModel> ItemsPotentialsList = new List<ItemPotentialModel>()
         {
@@ -73,7 +54,7 @@ namespace ArmorMaster.Buisiness.Services
         };
         public IEnumerable<int> GetAvailiableItemLevels()
         {
-            return availiableItemLevels;
+            return ItemsPotentialsList.Select( x => x.Level);
         }
 
         public IEnumerable<ItemStatCost> GetAvailiableItemStatCosts()
@@ -81,24 +62,24 @@ namespace ArmorMaster.Buisiness.Services
             return availiableItemStatCosts;
         }
 
-        public IEnumerable<string> GetAvailiableItemTypes()
+        public IEnumerable<ItemType> GetAvailiableItemTypes()
         {
-            return availiableItemTypes;
+            return availibleItemTypes;
         }
 
         public IEnumerable<string> GetAvailiableItemStatTypes()
         {
-            return availiableItemStatTypes;
+            return availiableItemStatCosts.Select(x => x.StatType);
         }
 
         public int GetPotentialByItemLvlAndItemType(int itemLvl, string itemType)
         {
-            int currentItemsLvl = availiableItemLevels.Where(x => x.Equals(itemLvl)).FirstOrDefault();
+            int currentItemsLvl = GetAvailiableItemLevels().Where(x => x.Equals(itemLvl)).FirstOrDefault();
             if (String.IsNullOrEmpty(currentItemsLvl.ToString()))
             {
                 throw new InvalidItemLevelException();
             }
-            string currentItemType = availiableItemTypes.Where(x => x.Equals(itemType)).FirstOrDefault();
+            string currentItemType = GetAvailiableItemTypes().Select(x => x.Type).Where(x => x.Equals(itemType)).FirstOrDefault();
             if (currentItemType == null)
             {
                 throw new InvalidItemTypeException();
@@ -111,24 +92,17 @@ namespace ArmorMaster.Buisiness.Services
 
         public bool ItemLevelIsValid(int lvl)
         {
-            return availiableItemLevels.Contains(lvl);
+            return GetAvailiableItemLevels().Contains(lvl);
         }
 
         public bool ItemTypeExists(string type)
         {
-            return availiableItemTypes.Contains(type);
+            return GetAvailiableItemTypes().Select(x => x.Type).Contains(type);
         }
 
         private int CalculatePotential(int itemsBasePotential , string currentItemType)
         {
-            if (currentItemType == "Weapon")
-            {
-                return Convert.ToInt32(itemsBasePotential * weaponPotentialMultipier);
-            }
-            if (specialEquipmentList.Contains(currentItemType))
-            {
-                return Convert.ToInt32(itemsBasePotential * specialEquipmentPotentialMultiplier);
-            }
+            
             return itemsBasePotential;
         }
     }

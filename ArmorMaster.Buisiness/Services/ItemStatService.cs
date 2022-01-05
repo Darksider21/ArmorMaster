@@ -38,9 +38,9 @@ namespace ArmorMaster.Buisiness.Services
             {
                 throw new InvalidIdException();
             }
-            var originalItemStats = item.ItemStats;
+            var originalItemStats = item.ItemBonusStats;
             var originalStatsPotential = GetItemPotentialByStats(originalItemStats);
-            var potentialToSpend = item.Potential - originalStatsPotential;
+            var potentialToSpend = item.ItemPotential - originalStatsPotential;
             if (potentialToSpend <=0)
             {
                 await GenerateNewStatsForItemAsync(item.ItemId);
@@ -54,22 +54,22 @@ namespace ArmorMaster.Buisiness.Services
         }
 
 
-        public async Task<IEnumerable<ItemStatModel>> GenerateNewStatsForItemAsync(int itemId)
+        public async Task<IEnumerable<ItemBonusStatModel>> GenerateNewStatsForItemAsync(int itemId)
         {
             var item = await itemRepository.GetItemByIdAsync(itemId);
             if (item == null)
             {
                 throw new InvalidIdException();
             }
-            var newItemStats = CreateItemStatsForItem(item.Potential);
-            var originalItemStats = item.ItemStats;
+            var newItemStats = CreateItemStatsForItem(item.ItemPotential);
+            var originalItemStats = item.ItemBonusStats;
             MapNewItemStatsToOriginalStats(newItemStats, originalItemStats);
             await itemStatRepository.UpdateMultipleItemStatsAsync(originalItemStats);
 
-            return ObjectMapper.Mapper.Map<IEnumerable<ItemStatModel>>(originalItemStats);
+            return ObjectMapper.Mapper.Map<IEnumerable<ItemBonusStatModel>>(originalItemStats);
         }
 
-        public  IEnumerable<ItemStat> GenerateItemStatsByPotential(int potential)
+        public  IEnumerable<ItemBonusStat> GenerateItemStatsByPotential(int potential)
         {
             var itemStats =  CreateItemStatsForItem(potential);
 
@@ -78,7 +78,7 @@ namespace ArmorMaster.Buisiness.Services
 
         }
         #region privateMethods
-        private int GetItemPotentialByStats(ICollection<ItemStat> originalStats)
+        private int GetItemPotentialByStats(ICollection<ItemBonusStat> originalStats)
         {
             int potential = 0;
             var itemStatCosts = constantsService.GetAvailiableItemStatCosts();
@@ -96,7 +96,7 @@ namespace ArmorMaster.Buisiness.Services
 
             return potential;
         }
-        private static void AddNewStatsToPrevious(ICollection<ItemStat> originalStats, IEnumerable<ItemStat> additionalItemStats)
+        private static void AddNewStatsToPrevious(ICollection<ItemBonusStat> originalStats, IEnumerable<ItemBonusStat> additionalItemStats)
         {
             foreach (var aditionalItemStat in additionalItemStats)
             {
@@ -115,7 +115,7 @@ namespace ArmorMaster.Buisiness.Services
                 }
             }
         }
-        private static void MapNewItemStatsToOriginalStats(List<ItemStat> newItemStats, ICollection<ItemStat> originalItemStats)
+        private static void MapNewItemStatsToOriginalStats(List<ItemBonusStat> newItemStats, ICollection<ItemBonusStat> originalItemStats)
         {
             foreach (var newItemStat in newItemStats)
             {
@@ -132,9 +132,9 @@ namespace ArmorMaster.Buisiness.Services
 
         
 
-        private List<ItemStat> CreateItemStatsForItem(int potential)
+        private List<ItemBonusStat> CreateItemStatsForItem(int potential)
         {
-            List<ItemStat> itemStats = new List<ItemStat>();
+            List<ItemBonusStat> itemStats = new List<ItemBonusStat>();
             var existingItemStats = constantsService.GetAvailiableItemStatTypes();
             var statCosts = constantsService.GetAvailiableItemStatCosts();
 
@@ -152,7 +152,7 @@ namespace ArmorMaster.Buisiness.Services
             foreach (var statToGenerate in generationModel)
             {
                 var statQuantity = statToGenerate.BaseAmountToAdd * statToGenerate.TimesToAddBaseAmount;
-                var generatedItemStat = new ItemStat() { StatType = statToGenerate.StatType, StatQuantity =  statQuantity };
+                var generatedItemStat = new ItemBonusStat() { StatType = statToGenerate.StatType, StatQuantity =  statQuantity };
                 if (generatedItemStat.StatType == "Critical Chance")
                 {
                     generatedItemStat.StatQuantity = Math.Round(statQuantity, 2);

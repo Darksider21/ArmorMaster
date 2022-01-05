@@ -10,11 +10,14 @@ namespace ArmorMaster.Buisiness.DTO.ModelsDTO
     public class ItemModel
     {
         public int ItemId { get; set; }
-        public string Type { get; set; }
-        public int Potential { get; set; }
-        public int Level { get; set; }
+        public string ItemType { get; set; }
+        public int ItemPotential { get; set; }
+        public int ItemLevel { get; set; }
+        public string BaseStatType { get; set; }
+        public double BaseStatQuantity { get; set; }
 
-        public ICollection<ItemStatModel> ItemStats { get; set; }
+
+        public ICollection<ItemBonusStatModel> ItemBonusStats { get; set; }
         public Player Player { get; set; }
     }
 }

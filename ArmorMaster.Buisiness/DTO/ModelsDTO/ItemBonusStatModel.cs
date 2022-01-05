@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ArmorMaster.Buisiness.DTO.ModelsDTO
 {
-    public class ItemStatModel
+    public class ItemBonusStatModel
     {
         public string StatType { get; set; }
 

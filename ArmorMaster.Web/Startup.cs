@@ -55,6 +55,7 @@ namespace ArmorMaster.Web
             services.AddScoped<IPlayerItemService,PlayerService>();
             services.AddScoped<IItemStatService, ItemStatService>();
             services.AddScoped<IConstantsService, ConstantsService>();
+            services.AddScoped<ICalculationService, CalculationService>();
 
         }
 

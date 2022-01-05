@@ -10,8 +10,8 @@ namespace ArmorMaster.Buisiness.Services.ServiceInterfaces
 {
     public interface IItemStatService
     {
-        public IEnumerable<ItemStat> GenerateItemStatsByPotential(int potential);
-        public Task<IEnumerable<ItemStatModel>> GenerateNewStatsForItemAsync(int itemId);
+        public IEnumerable<ItemBonusStat> GenerateItemStatsByPotential(int potential);
+        public Task<IEnumerable<ItemBonusStatModel>> GenerateNewStatsForItemAsync(int itemId);
         public Task GenerateLackingStatsForItemAsync(Item item);
     }
 }

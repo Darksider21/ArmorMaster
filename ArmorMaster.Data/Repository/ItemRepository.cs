@@ -29,17 +29,17 @@ namespace ArmorMaster.Data.Repository
 
         public async Task<IEnumerable<Item>> GetAllItemsAsync()
         {
-            return await _dbContext.Items.Select(x => x).Include(x => x.ItemStats).ToListAsync();
+            return await _dbContext.Items.Select(x => x).Include(x => x.ItemBonusStats).ToListAsync();
         }
 
         public async Task<Item> GetItemByIdAsync(int id)
         {
-            return await _dbContext.Items.Where(x => x.ItemId.Equals(id)).Include(x => x.ItemStats).FirstOrDefaultAsync();
+            return await _dbContext.Items.Where(x => x.ItemId.Equals(id)).Include(x => x.ItemBonusStats).FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<Item>> GetItemsByMultipleIdsAsync(int[] ids)
         {
-            return await _dbContext.Items.Where(x => ids.Contains(x.ItemId)).Include(x => x.ItemStats).ToListAsync();
+            return await _dbContext.Items.Where(x => ids.Contains(x.ItemId)).Include(x => x.ItemBonusStats).ToListAsync();
         }
 
         public async Task UpdateItemAsync(Item item)
