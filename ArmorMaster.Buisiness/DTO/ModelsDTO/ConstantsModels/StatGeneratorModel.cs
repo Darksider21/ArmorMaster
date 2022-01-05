@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace ArmorMaster.Buisiness.DTO.ModelsDTO.ConstantsModels
 {
-    public class ItemStatCost
+    public class StatGeneratorModel
     {
         public string StatType { get; set; }
-        public int StatCost { get; set; }
-        public double StatAmount { get; set; }
+        public int TimesToAddBaseAmount { get; set; }
+        public double BaseAmountToAdd { get; set; }
+        public int BaseStatCost { get; set; }
     }
 }

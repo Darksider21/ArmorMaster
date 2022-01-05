@@ -1,4 +1,8 @@
-﻿using ArmorMaster.Buisiness.Services.ServiceInterfaces;
+﻿using ArmorMaster.Buisiness.DTO.ModelsDTO;
+using ArmorMaster.Buisiness.DTO.ModelsDTO.ConstantsModels;
+using ArmorMaster.Buisiness.Exceptions;
+using ArmorMaster.Buisiness.Mapper;
+using ArmorMaster.Buisiness.Services.ServiceInterfaces;
 using ArmorMaster.Data.Models;
 using ArmorMaster.Data.Repository;
 using ArmorMaster.Data.Repository.Base;
@@ -13,53 +17,153 @@ namespace ArmorMaster.Buisiness.Services
     public class ItemStatService : IItemStatService
     {
         private readonly IItemStatRepository itemStatRepository;
-        private readonly IItemService itemService;
         private readonly IConstantsService constantsService;
-        private readonly IItemStatTypeRepository itemStatTypeRepository;
         private readonly IRandomProvider randomProvider;
-        public ItemStatService(IItemStatRepository itemStatRepository, IItemService itemService,
-            IConstantsService constantsService, IItemStatTypeRepository itemStatTypeRepository,
-            IRandomProvider randomProvider)
+        private readonly IItemRepository itemRepository;
+
+        public ItemStatService(IItemStatRepository itemStatRepository, 
+            IConstantsService constantsService, 
+            IRandomProvider randomProvider, IItemRepository itemRepository)
         {
             this.itemStatRepository = itemStatRepository;
-            this.itemService = itemService;
             this.constantsService = constantsService;
             this.randomProvider = randomProvider;
+            this.itemRepository = itemRepository;
         }
 
-        public  async Task<IEnumerable<ItemStat>> GenerateLackingStatsForItemAsync(Item item)
+        public  async Task GenerateLackingStatsForItemAsync(Item item)
         {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IEnumerable<ItemStat>> GenerateNewStatsForItemAsync(int itemId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IEnumerable<ItemStat>> GenerateItemStatsForItemAsync(Item item)
-        {
-            var itemStats =  await CreateItemStatsForNewItem(item);
-
-            var generatedItemStats = await GenerateItemStatsValues(itemStats);
-
-        }
-
-        private  Task<List<ItemStat>> GenerateItemStatsValues(List<ItemStat> itemStats)
-        {
-            var statCosts = constantsService.GetAvailiableItemStatCosts();
-        }
-
-        private  async Task<List<ItemStat>> CreateItemStatsForNewItem(Item item)
-        {
-            var availiableItemStatTypes = await itemStatTypeRepository.GetAllItemStatTypesAsync();
-            List<ItemStat> itemStats = new List<ItemStat>();
-            foreach (var itemStatType in availiableItemStatTypes)
+            var Existingitem = await itemRepository.GetItemByIdAsync(item.ItemId);
+            if (Existingitem == null)
             {
-                var newItemStat = new ItemStat() { Item = item, ItemStatType = itemStatType };
-                itemStats.Add(newItemStat);
+                throw new InvalidIdException();
             }
+            var originalItemStats = item.ItemBonusStats;
+            var originalStatsPotential = GetItemPotentialByStats(originalItemStats);
+            var potentialToSpend = item.ItemPotential - originalStatsPotential;
+            if (potentialToSpend <=0)
+            {
+                await GenerateNewStatsForItemAsync(item.ItemId);
+                return;
+            }
+            var additionalItemStats = GenerateItemStatsByPotential(potentialToSpend);
+            AddNewStatsToPrevious(originalItemStats, additionalItemStats);
+            await itemStatRepository.UpdateMultipleItemStatsAsync(originalItemStats);
+
+
+        }
+
+
+        public async Task<IEnumerable<ItemBonusStatModel>> GenerateNewStatsForItemAsync(int itemId)
+        {
+            var item = await itemRepository.GetItemByIdAsync(itemId);
+            if (item == null)
+            {
+                throw new InvalidIdException();
+            }
+            var newItemStats = CreateItemStatsForItem(item.ItemPotential);
+            var originalItemStats = item.ItemBonusStats;
+            MapNewItemStatsToOriginalStats(newItemStats, originalItemStats);
+            await itemStatRepository.UpdateMultipleItemStatsAsync(originalItemStats);
+
+            return ObjectMapper.Mapper.Map<IEnumerable<ItemBonusStatModel>>(originalItemStats);
+        }
+
+        public  IEnumerable<ItemBonusStat> GenerateItemStatsByPotential(int potential)
+        {
+            var itemStats =  CreateItemStatsForItem(potential);
+
+
+            return itemStats;
+
+        }
+        #region privateMethods
+        private int GetItemPotentialByStats(ICollection<ItemBonusStat> originalStats)
+        {
+            int potential = 0;
+            var itemStatCosts = constantsService.GetAvailiableItemStatCosts();
+            foreach (var originalItemStat in originalStats)
+            {
+                foreach (var itemStatCost in itemStatCosts)
+                {
+                    if (originalItemStat.StatType.Equals(itemStatCost.StatType))
+                    {
+                        int potentialCost =  Convert.ToInt32((originalItemStat.StatQuantity / itemStatCost.StatAmount))  * itemStatCost.StatCost;
+                        potential += potentialCost;
+                    }
+                }
+            }
+
+            return potential;
+        }
+        private static void AddNewStatsToPrevious(ICollection<ItemBonusStat> originalStats, IEnumerable<ItemBonusStat> additionalItemStats)
+        {
+            foreach (var aditionalItemStat in additionalItemStats)
+            {
+                foreach (var originalItemStat in originalStats)
+                {
+                    if (aditionalItemStat.StatType.Equals(originalItemStat.StatType))
+                    {
+                        originalItemStat.StatQuantity += aditionalItemStat.StatQuantity;
+
+
+                        if (originalItemStat.StatType.Equals("Critical Chance"))
+                        {
+                            originalItemStat.StatQuantity = Math.Round(originalItemStat.StatQuantity, 2);
+                        }
+                    }
+                }
+            }
+        }
+        private static void MapNewItemStatsToOriginalStats(List<ItemBonusStat> newItemStats, ICollection<ItemBonusStat> originalItemStats)
+        {
+            foreach (var newItemStat in newItemStats)
+            {
+                foreach (var originalItem in originalItemStats)
+                {
+                    if (originalItem.StatType.Equals(newItemStat.StatType))
+                    {
+                        originalItem.StatQuantity = newItemStat.StatQuantity;
+                    }
+                }
+            }
+        }
+
+
+        
+
+        private List<ItemBonusStat> CreateItemStatsForItem(int potential)
+        {
+            List<ItemBonusStat> itemStats = new List<ItemBonusStat>();
+            var existingItemStats = constantsService.GetAvailiableItemStatTypes();
+            var statCosts = constantsService.GetAvailiableItemStatCosts();
+
+            var generationModel = statCosts.Select(x => new StatGeneratorModel() { StatType = x.StatType, BaseAmountToAdd = x.StatAmount, TimesToAddBaseAmount = 0
+            ,BaseStatCost = x.StatCost}).ToList();
+
+            while(potential > 0)
+            {
+                var randomNumber = randomProvider.Next(generationModel.Count());
+                 
+                generationModel[randomNumber].TimesToAddBaseAmount++;
+                potential -= generationModel[randomNumber].BaseStatCost;
+
+            }
+            foreach (var statToGenerate in generationModel)
+            {
+                var statQuantity = statToGenerate.BaseAmountToAdd * statToGenerate.TimesToAddBaseAmount;
+                var generatedItemStat = new ItemBonusStat() { StatType = statToGenerate.StatType, StatQuantity =  statQuantity };
+                if (generatedItemStat.StatType == "Critical Chance")
+                {
+                    generatedItemStat.StatQuantity = Math.Round(statQuantity, 2);
+                }
+                itemStats.Add(generatedItemStat);
+            }
+
+
+
             return itemStats;
         }
+        #endregion
     }
 }

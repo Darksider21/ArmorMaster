@@ -11,8 +11,9 @@ namespace ArmorMaster.Buisiness.Services.ServiceInterfaces
     public interface IConstantsService
     {
         public IEnumerable<int> GetAvailiableItemLevels();
-        public IEnumerable<string> GetAvailiableItemTypes();
+        public IEnumerable<ItemType> GetAvailiableItemTypes();
         public IEnumerable<ItemStatCost> GetAvailiableItemStatCosts();
+        public IEnumerable<string> GetAvailiableItemStatTypes();
         public int GetPotentialByItemLvlAndItemType(int itemLvl,string itemType);
 
         public bool ItemTypeExists(string type);

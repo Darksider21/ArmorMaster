@@ -20,7 +20,6 @@ namespace ArmorMaster.Web
             var host = CreateWebHostBuilder(args).Build();
 
             SeedDatabase(host);
-
             host.Run();
         }
 

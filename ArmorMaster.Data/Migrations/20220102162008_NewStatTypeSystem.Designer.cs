@@ -4,14 +4,16 @@ using ArmorMaster.Data.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ArmorMaster.Data.Migrations
 {
     [DbContext(typeof(ArmorMasterContext))]
-    partial class ArmorMasterContextModelSnapshot : ModelSnapshot
+    [Migration("20220102162008_NewStatTypeSystem")]
+    partial class NewStatTypeSystem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,23 +28,17 @@ namespace ArmorMaster.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<double>("BaseStatQuantity")
-                        .HasColumnType("float");
-
-                    b.Property<string>("BaseStatType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ItemLevel")
+                    b.Property<int>("Level")
                         .HasColumnType("int");
-
-                    b.Property<int>("ItemPotential")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ItemType")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("PlayerID")
                         .HasColumnType("int");
+
+                    b.Property<int>("Potential")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ItemId");
 
@@ -51,9 +47,9 @@ namespace ArmorMaster.Data.Migrations
                     b.ToTable("Items");
                 });
 
-            modelBuilder.Entity("ArmorMaster.Data.Models.ItemBonusStat", b =>
+            modelBuilder.Entity("ArmorMaster.Data.Models.ItemStat", b =>
                 {
-                    b.Property<int>("ItemBonusStatID")
+                    b.Property<int>("ItemStatID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -67,7 +63,7 @@ namespace ArmorMaster.Data.Migrations
                     b.Property<string>("StatType")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("ItemBonusStatID");
+                    b.HasKey("ItemStatID");
 
                     b.HasIndex("ItemId");
 
@@ -98,10 +94,10 @@ namespace ArmorMaster.Data.Migrations
                     b.Navigation("Player");
                 });
 
-            modelBuilder.Entity("ArmorMaster.Data.Models.ItemBonusStat", b =>
+            modelBuilder.Entity("ArmorMaster.Data.Models.ItemStat", b =>
                 {
                     b.HasOne("ArmorMaster.Data.Models.Item", "Item")
-                        .WithMany("ItemBonusStats")
+                        .WithMany("ItemStats")
                         .HasForeignKey("ItemId");
 
                     b.Navigation("Item");
@@ -109,7 +105,7 @@ namespace ArmorMaster.Data.Migrations
 
             modelBuilder.Entity("ArmorMaster.Data.Models.Item", b =>
                 {
-                    b.Navigation("ItemBonusStats");
+                    b.Navigation("ItemStats");
                 });
 
             modelBuilder.Entity("ArmorMaster.Data.Models.Player", b =>

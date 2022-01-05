@@ -39,7 +39,7 @@ namespace ArmorMaster.Web
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("Armor Master", new OpenApiInfo { Title = "ArmorMaster.Web", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ArmorMaster", Version = "v1" });
             });
 
             //data
@@ -47,15 +47,15 @@ namespace ArmorMaster.Web
             services.AddScoped<IItemRepository, ItemRepository>();
             services.AddScoped<IPlayerRepository, PlayerRepository>();
             services.AddScoped<IItemStatRepository, ItemStatRepository>();
-            services.AddScoped<ItemStatTypeRepository, ItemStatTypeRepository>();
 
             //service
             services.AddScoped<IItemService, ItemService>();
             services.AddScoped<IPlayerService, PlayerService>();
-            services.AddScoped<IItemStatService, ItemStatService>();
+            services.AddScoped<IRandomProvider, RandomProvider>();
             services.AddScoped<IPlayerItemService,PlayerService>();
-            services.AddScoped<IItemStatTypeService, ItemStatTypeService>();
+            services.AddScoped<IItemStatService, ItemStatService>();
             services.AddScoped<IConstantsService, ConstantsService>();
+            services.AddScoped<ICalculationService, CalculationService>();
 
         }
 
@@ -66,7 +66,10 @@ namespace ArmorMaster.Web
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ArmorMaster.Web v1"));
+                app.UseSwaggerUI(c => 
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "ArmorMaster");
+                });
             }
 
 

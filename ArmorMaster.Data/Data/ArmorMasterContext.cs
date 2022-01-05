@@ -17,7 +17,6 @@ namespace ArmorMaster.Data.Data
 
         public DbSet<Player> Players { get; set; }
         public DbSet<Item> Items { get; set; }
-        public DbSet<ItemStatType> ItemStatTypes { get; set; }
-        public DbSet<ItemStat> ItemStats { get; set; }
+        public DbSet<ItemBonusStat> ItemStats { get; set; }
     }
 }

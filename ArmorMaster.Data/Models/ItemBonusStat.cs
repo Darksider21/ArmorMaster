@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace ArmorMaster.Data.Models
 {
-    public class ItemStat
+    public class ItemBonusStat
     {
-        public int ItemStatID { get; set; }
+        public int ItemBonusStatID { get; set; }
 
         public double StatQuantity { get; set; }
 
-        public ItemStatType ItemStatType { get; set; }
+        public string StatType { get; set; }
 
         public Item Item { get; set; }
     }

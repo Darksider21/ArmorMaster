@@ -20,5 +20,9 @@ namespace ArmorMaster.Buisiness.Services
         {
             return CurrentRandom.Next(lowBarier, heighBarier);
         }
+        public int Next(int upperBarier)
+        {
+            return CurrentRandom.Next(upperBarier);
+        }
     }
 }

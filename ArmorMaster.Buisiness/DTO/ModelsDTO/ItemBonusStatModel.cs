@@ -7,14 +7,13 @@ using System.Threading.Tasks;
 
 namespace ArmorMaster.Buisiness.DTO.ModelsDTO
 {
-    public class ItemStatModel
+    public class ItemBonusStatModel
     {
-        public int ItemStatID { get; set; }
+        public string StatType { get; set; }
 
         public double StatQuantity { get; set; }
 
-        public ItemStatType ItemStatType { get; set; }
 
-        public Item Item { get; set; }
+        
     }
 }

@@ -18,11 +18,16 @@ namespace ArmorMaster.Buisiness.Services
         private readonly IItemRepository itemRepository;
         private readonly IConstantsService constantsService;
         private readonly IItemStatService itemStatService;
-        public ItemService(IItemRepository itemRepository, IConstantsService constantsService, IItemStatService itemStatService)
+        private readonly IItemStatRepository itemStatRepository;
+        private readonly ICalculationService calculationService;
+        public ItemService(IItemRepository itemRepository, IConstantsService constantsService,
+            IItemStatService itemStatService, IItemStatRepository itemStatRepository , ICalculationService calculationService)
         {
             this.itemRepository = itemRepository;
             this.constantsService = constantsService;
             this.itemStatService = itemStatService;
+            this.itemStatRepository = itemStatRepository;
+            this.calculationService = calculationService;
         }
 
         public async Task<ItemModel> CreateItemAsync(CreateItemModel model)
@@ -35,10 +40,13 @@ namespace ArmorMaster.Buisiness.Services
             {
                 throw new InvalidItemTypeException();
             }
+            var itemTypeModel = constantsService.GetAvailiableItemTypes().Where(x => x.Type.Equals(model.Type)).FirstOrDefault();
+            var calculatedBaseStat = GenerateBaseStatForItem(model.Level, itemTypeModel.BaseStatInitialValue);
             var itemsPotential = constantsService.GetPotentialByItemLvlAndItemType(model.Level, model.Type);
-            var newItem = new Item() { Level = model.Level, Type = model.Type, Potential = itemsPotential};
-            var itemStats = await itemStatService.GenerateItemStatsForItemAsync(newItem);
-            newItem.ItemStats = itemStats.ToList();
+            var itemBonusStats = itemStatService.GenerateItemStatsByPotential(itemsPotential);
+            var newItem = new Item() { ItemLevel = model.Level, ItemType = model.Type,
+                ItemPotential = itemsPotential , ItemBonusStats = itemBonusStats.ToList() ,
+                BaseStatType = itemTypeModel.BaseStatType , BaseStatQuantity = calculatedBaseStat};
             await itemRepository.CreateItemAsync(newItem);
 
             return ObjectMapper.Mapper.Map<ItemModel>(newItem);
@@ -51,6 +59,7 @@ namespace ArmorMaster.Buisiness.Services
             {
                 throw new InvalidIdException();
             }
+            await itemStatRepository.DeleteMultipleItemStatsAsync(item.ItemBonusStats);
             await itemRepository.DeleteItemAsync(item);
         }
 
@@ -78,6 +87,18 @@ namespace ArmorMaster.Buisiness.Services
                 throw new InvalidIdException();
             }
             return ObjectMapper.Mapper.Map<IEnumerable<ItemModel>>(items);
+        }
+
+
+        private double GenerateBaseStatForItem(int itemLvl , double baseStatInitialValue)
+        {
+            var triangularNumberPerLevels = 20;
+            double triangularNumberFromLevels = (itemLvl / triangularNumberPerLevels);
+            int triangularNumberTofind = 1 + Convert.ToInt32(Math.Floor(triangularNumberFromLevels));
+            int triangularNumber = calculationService.GetNThTriangularNumber(triangularNumberTofind);
+            double stat = triangularNumber * baseStatInitialValue;
+            return stat;
+
         }
     }
 }

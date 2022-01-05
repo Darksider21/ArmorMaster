@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace ArmorMaster.Buisiness.Services.ServiceInterfaces
 {
-    public interface IRandomProvider
+    public interface ICalculationService
     {
-        public  Random CurrentRandom { get; }
-        public int Next(int lowBarier, int heighBarier);
-        public int Next(int upperBarier);
+        public int GetNThTriangularNumber(int n);
     }
 }

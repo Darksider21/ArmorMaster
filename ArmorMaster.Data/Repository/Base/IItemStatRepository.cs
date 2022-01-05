@@ -9,7 +9,8 @@ namespace ArmorMaster.Data.Repository.Base
 {
     public interface IItemStatRepository
     {
-        public Task<IEnumerable<ItemStat>> GetItemStatsByItemIdAsync(int itemId);
-        public Task UpdateMultipleItemStatsAsync(IEnumerable<ItemStat> itemStats);
+        public Task<IEnumerable<ItemBonusStat>> GetItemStatsByItemIdAsync(int itemId);
+        public Task UpdateMultipleItemStatsAsync(IEnumerable<ItemBonusStat> itemStats);
+        public Task DeleteMultipleItemStatsAsync(IEnumerable<ItemBonusStat> itemStats);
     }
 }

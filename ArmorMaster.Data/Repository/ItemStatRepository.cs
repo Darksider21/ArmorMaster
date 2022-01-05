@@ -10,20 +10,26 @@ using System.Threading.Tasks;
 
 namespace ArmorMaster.Data.Repository
 {
-    public class ItemStatRepository : Repository<ItemStat>, IItemStatRepository
+    public class ItemStatRepository : Repository<ItemBonusStat>, IItemStatRepository
     {
         public ItemStatRepository(ArmorMasterContext dbContext) : base(dbContext)
         {
         }
 
-        public async Task<IEnumerable<ItemStat>> GetItemStatsByItemIdAsync(int itemId)
+        public async Task DeleteMultipleItemStatsAsync(IEnumerable<ItemBonusStat> itemStats)
         {
-            return await _dbContext.ItemStats.Where(x => x.Item.ItemId.Equals(itemId)).Include(x => x.ItemStatType).ToListAsync();
+             _dbContext.Set<ItemBonusStat>().RemoveRange(itemStats);
+            await _dbContext.SaveChangesAsync();
         }
 
-        public async Task UpdateMultipleItemStatsAsync(IEnumerable<ItemStat> itemStats)
+        public async Task<IEnumerable<ItemBonusStat>> GetItemStatsByItemIdAsync(int itemId)
         {
-            _dbContext.Set<ItemStat>().UpdateRange(itemStats);
+            return await _dbContext.ItemStats.Where(x => x.Item.ItemId.Equals(itemId)).ToListAsync();
+        }
+
+        public async Task UpdateMultipleItemStatsAsync(IEnumerable<ItemBonusStat> itemStats)
+        {
+            _dbContext.Set<ItemBonusStat>().UpdateRange(itemStats);
             await _dbContext.SaveChangesAsync();
         }
     }

@@ -1,5 +1,6 @@
 ﻿using ArmorMaster.Buisiness.DTO.ModelsDTO;
 using ArmorMaster.Buisiness.DTO.RequestDTO;
+using ArmorMaster.Buisiness.Exceptions;
 using ArmorMaster.Buisiness.Services.ServiceInterfaces;
 using ArmorMaster.Data.Repository.Base;
 using System;
@@ -20,37 +21,56 @@ namespace ArmorMaster.Buisiness.Services
             this.playerRepository = playerRepository;
             this.itemRepository = itemRepository;
         }
-        public Task CreatePlayerAsync(CreatePlayerModel model)
+        public async Task CreatePlayerAsync(CreatePlayerModel model)
         {
             throw new NotImplementedException();
         }
 
-        public Task DeletePlayerAsync(int id)
+        public async Task DeletePlayerAsync(int id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ItemOwnerModel> EquipItemOnPlayerAsync(int itemId, int playerId)
+
+        public async Task<IEnumerable<PlayerModel>> GetAllPlayersAsync()
         {
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<PlayerModel>> GetAllPlayersAsync()
+        public async Task<PlayerModel> GetPlayerByIdAsync(int id)
         {
             throw new NotImplementedException();
         }
-
-        public Task<PlayerModel> GetPlayerByIdAsync(int id)
+        public async Task<ItemOwnerModel> EquipItemOnPlayerAsync(int itemId, int playerId)
         {
-            throw new NotImplementedException();
+            var item = await itemRepository.GetItemByIdAsync(itemId);
+            var player = await playerRepository.GetPlayerByIdAsync(playerId);
+            if (item == null || player == null)
+            {
+                throw new InvalidIdException();
+            }
+            item.Player = null;
+            await itemRepository.UpdateItemAsync(item);
+            var itemOwnerModel = new ItemOwnerModel() { ItemId = item.ItemId, PlayerId = player.PlayerID };
+            return itemOwnerModel;
         }
 
-        public Task<ItemOwnerModel> UnequipItemFromPlayerAsync(int itemId, int playerId)
+        public async Task<ItemOwnerModel> UnequipItemFromPlayerAsync(int itemId, int playerId)
         {
-            throw new NotImplementedException();
+            var item = await itemRepository.GetItemByIdAsync(itemId);
+            var player = await playerRepository.GetPlayerByIdAsync(playerId);
+            if (item == null || player == null)
+            {
+                throw new InvalidIdException();
+            }
+            item.Player = player;
+            await itemRepository.UpdateItemAsync(item);
+            var itemOwnerModel = new ItemOwnerModel() { ItemId = item.ItemId, PlayerId = player.PlayerID };
+            return itemOwnerModel;
+            
         }
 
-        public Task UpdatePlayerAsync(ModifyPlayerModel model)
+        public async Task UpdatePlayerAsync(ModifyPlayerModel model)
         {
             throw new NotImplementedException();
         }
