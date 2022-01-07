@@ -43,11 +43,15 @@ namespace ArmorMaster.Buisiness.Services
             var itemTypeModel = constantsService.GetAvailiableItemTypes().Where(x => x.Type.Equals(model.Type)).FirstOrDefault();
             var calculatedBaseStat =  calculationService.GenerateBaseStatForItem(model.Level, itemTypeModel.BaseStatInitialValue);
             var itemsPotential = constantsService.GetPotentialByItemLvlAndItemType(model.Level, model.Type);
-            var itemBonusStats = itemStatService.GenerateItemStatsByPotential(itemsPotential);
             var newItem = new Item() { ItemLevel = model.Level, ItemType = model.Type,
-                ItemPotential = itemsPotential , ItemBonusStats = itemBonusStats.ToList() ,
+                ItemPotential = itemsPotential, ItemBonusStats = new List<ItemBonusStat>() , 
                 BaseStatType = itemTypeModel.BaseStatType , BaseStatQuantity = calculatedBaseStat};
+
+            var itemBonusStats = itemStatService.GenerateItemBonusStats(newItem).ToList();
+            itemBonusStats.ForEach(x => newItem.ItemBonusStats.Add(x));
+            
             await itemRepository.CreateItemAsync(newItem);
+
 
             return ObjectMapper.Mapper.Map<ItemModel>(newItem);
         }

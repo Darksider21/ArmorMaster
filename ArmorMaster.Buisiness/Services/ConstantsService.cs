@@ -18,7 +18,6 @@ namespace ArmorMaster.Buisiness.Services
 
         private readonly List<ItemStatCost> availiableItemStatCosts = new List<ItemStatCost>()
             {
-                new ItemStatCost() {StatType ="Critical Chance" , StatAmount =0.02 , StatCost = 10},
                 new ItemStatCost() {StatType ="Health", StatAmount = 20 , StatCost = 10},
                 new ItemStatCost() {StatType ="Constitution", StatAmount = 1 , StatCost = 10},
                 new ItemStatCost() {StatType ="Strength", StatAmount = 1 , StatCost = 10},
@@ -85,6 +84,25 @@ namespace ArmorMaster.Buisiness.Services
             new ItemPotentialModel(){Level = 80 , Potential = 4000 },
             new ItemPotentialModel(){Level = 100 , Potential = 10000 }
         };
+        private List<ItemCritChanceByLevelModel> itemCritChanceByLevelList = new List<ItemCritChanceByLevelModel>()
+        {
+            new ItemCritChanceByLevelModel(){ItemLevel = 1 , MinChance =0 , MaxChance = 2},
+            new ItemCritChanceByLevelModel(){ItemLevel = 20 , MinChance =1 , MaxChance = 2},
+            new ItemCritChanceByLevelModel(){ItemLevel = 40 , MinChance =1 , MaxChance = 3},
+            new ItemCritChanceByLevelModel(){ItemLevel = 60 , MinChance =2 , MaxChance = 3},
+            new ItemCritChanceByLevelModel(){ItemLevel = 80 , MinChance =2 , MaxChance = 4},
+            new ItemCritChanceByLevelModel(){ItemLevel = 100 , MinChance =3 , MaxChance = 4}
+        };
+        private List<string> itemTypesThatCanGenerateCrit = new List<string>()
+        {
+            "Weapon",
+            "Helmet",
+            "Legs",
+            "Chest",
+            "Arms",
+            "Talisman"
+        };
+
         public IEnumerable<int> GetAvailiableItemLevels()
         {
             return ItemsPotentialsList.Select( x => x.Level);
@@ -143,5 +161,14 @@ namespace ArmorMaster.Buisiness.Services
             return itemsBasePotential;
         }
 
+        public IEnumerable<ItemCritChanceByLevelModel> GetItemCritChanceByLevel()
+        {
+            return itemCritChanceByLevelList;
+        }
+
+        public IEnumerable<string> GetItemTypesThatCanGenrateCrit()
+        {
+            return itemTypesThatCanGenerateCrit;   
+        }
     }
 }
