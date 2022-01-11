@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ArmorMaster.Data.Migrations
 {
     [DbContext(typeof(ArmorMasterContext))]
-    [Migration("20220105182632_ItemstatChange")]
-    partial class ItemstatChange
+    [Migration("20220110134732_initialCreate")]
+    partial class initialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -40,8 +40,14 @@ namespace ArmorMaster.Data.Migrations
                     b.Property<int>("ItemPotential")
                         .HasColumnType("int");
 
+                    b.Property<string>("ItemRarity")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ItemType")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ItemUpgradeLevel")
+                        .HasColumnType("int");
 
                     b.Property<int?>("PlayerID")
                         .HasColumnType("int");

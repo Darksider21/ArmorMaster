@@ -15,6 +15,9 @@ namespace ArmorMaster.Buisiness.Services.ServiceInterfaces
         public IEnumerable<ItemUpgradeLevel> GetAvailiableItemUpgradeLevels();
         public IEnumerable<ItemStatCost> GetAvailiableItemStatCosts();
         public IEnumerable<ItemCritChanceByLevelModel> GetItemCritChanceByLevel();
+        public IEnumerable<RarityBonusesForItemModel> GetItemRarityBonuses();
+        public IEnumerable<string> GetItemsRarityTypes();
+        
         public IEnumerable<string> GetItemTypesThatCanGenrateCrit();
         public IEnumerable<string> GetAvailiableItemStatTypes();
         public int GetPotentialByItemLvlAndItemType(int itemLvl,string itemType);

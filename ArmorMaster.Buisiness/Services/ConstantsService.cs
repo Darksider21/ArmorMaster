@@ -12,9 +12,19 @@ namespace ArmorMaster.Buisiness.Services
 {
     public class ConstantsService : IConstantsService
     {
-        
-        
-        
+
+
+        private readonly List<RarityBonusesForItemModel> rarityBonusesForItemList = new List<RarityBonusesForItemModel>()
+        {
+            new RarityBonusesForItemModel(){RarityName = "Xun Xi",PotentialMultiplyer = 1.25 , BaseStatMultiplyer = 1.25 , BaseCriticalChanceBonus = 2 ,
+                PreferedBonusStatsWeightIncreasePercentage = 1.25 , BonusStatPreferences = new List<string>(){"Strength" , "Agility" } },
+
+            new RarityBonusesForItemModel(){RarityName = "HuanDun",PotentialMultiplyer = 1.1 , BaseStatMultiplyer = 1.4 , BaseCriticalChanceBonus = 0 ,
+                PreferedBonusStatsWeightIncreasePercentage = 1.5 , BonusStatPreferences = new List<string>(){"Strength" , "Agility" } },
+
+            new RarityBonusesForItemModel(){RarityName = "Taote",PotentialMultiplyer = 1.5 , BaseStatMultiplyer = 1 , BaseCriticalChanceBonus = 0 ,
+                PreferedBonusStatsWeightIncreasePercentage = 1.5 , BonusStatPreferences = new List<string>(){"Health" , "Constitution" } }
+        };
 
         private readonly List<ItemStatCost> availiableItemStatCosts = new List<ItemStatCost>()
             {
@@ -169,6 +179,16 @@ namespace ArmorMaster.Buisiness.Services
         public IEnumerable<string> GetItemTypesThatCanGenrateCrit()
         {
             return itemTypesThatCanGenerateCrit;   
+        }
+
+        public IEnumerable<RarityBonusesForItemModel> GetItemRarityBonuses()
+        {
+            return rarityBonusesForItemList;
+        }
+
+        public IEnumerable<string> GetItemsRarityTypes()
+        {
+            return rarityBonusesForItemList.Select(x => x.RarityName).ToList();
         }
     }
 }

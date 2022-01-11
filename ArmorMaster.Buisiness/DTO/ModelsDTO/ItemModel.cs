@@ -11,6 +11,7 @@ namespace ArmorMaster.Buisiness.DTO.ModelsDTO
     {
         public int ItemId { get; set; }
         public string ItemType { get; set; }
+        public string ItemRarity { get; set; }
         public int ItemPotential { get; set; }
         public int ItemLevel { get; set; }
         public string BaseStatType { get; set; }
