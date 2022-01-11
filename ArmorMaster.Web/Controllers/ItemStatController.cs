@@ -23,7 +23,7 @@ namespace ArmorMaster.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> GenerateNewStatsForItem(int itemId)
         {
-            var itemStats = await itemStatService.GenerateNewStatsForItemAsync(itemId);
+            var itemStats = await itemStatService.GenerateNewBonusStatsForItemAsync(itemId);
             return Ok(itemStats);
         }
     }

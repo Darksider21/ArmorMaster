@@ -38,6 +38,9 @@ namespace ArmorMaster.Data.Migrations
                     b.Property<int>("ItemPotential")
                         .HasColumnType("int");
 
+                    b.Property<string>("ItemRarity")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ItemType")
                         .HasColumnType("nvarchar(max)");
 

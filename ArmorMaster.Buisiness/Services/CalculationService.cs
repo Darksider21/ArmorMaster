@@ -45,7 +45,7 @@ namespace ArmorMaster.Buisiness.Services
                 }
             }
             item.ItemUpgradeLevel = itemsFutureUpgradeLevel;
-            var changedItem = ApplyAllUpgradesToItemsStats(item);
+             CalculateItemsFinalBaseStats(item);
 
 
             return item;    
@@ -56,12 +56,24 @@ namespace ArmorMaster.Buisiness.Services
             return ( n*n + n) / 2;
         }
 
-        private Item ApplyAllUpgradesToItemsStats(Item item)
+        public void CalculateItemsFinalBaseStats(Item item)
         {
-            CalculateStatsFromUpgradeLevels(item);
-            return item;
+            CalculateBaseStatFromUpgradeLevels(item);
+            CalculateBaseStatFromRarity(item);
+            item.BaseStatQuantity = Math.Round(item.BaseStatQuantity, 2);
         }
-        private void CalculateStatsFromUpgradeLevels(Item item)
+
+        private void CalculateBaseStatFromRarity(Item item)
+        {
+            if (String.IsNullOrEmpty(item.ItemRarity))
+            {
+                return;
+            }
+            var currentRarityBonus = constantsService.GetItemRarityBonuses().Where(x => x.RarityName.Equals(item.ItemRarity)).FirstOrDefault();
+            item.BaseStatQuantity *= currentRarityBonus.BaseStatMultiplyer;
+        }
+
+        private void CalculateBaseStatFromUpgradeLevels(Item item)
         {
             var upgradeLevels = constantsService.GetAvailiableItemUpgradeLevels();
             var itemsUpgradeLevels = upgradeLevels.Where(x => x.UpgradeLevel <= item.ItemUpgradeLevel).ToList();
@@ -70,7 +82,7 @@ namespace ArmorMaster.Buisiness.Services
 
             var itemsBaseStats = CalculateItemsRawBaseStats(item);
 
-            item.BaseStatQuantity =  Math.Round((itemsBaseStats * baseStatMultiplyerFromUpgradeLevels) , 2);
+            item.BaseStatQuantity =  (itemsBaseStats * baseStatMultiplyerFromUpgradeLevels);
         }
 
         private double CalculateItemsRawBaseStats(Item item)
@@ -78,6 +90,23 @@ namespace ArmorMaster.Buisiness.Services
             var itemType =  constantsService.GetAvailiableItemTypes().Where(x => x.Type.Equals(item.ItemType)).FirstOrDefault();
             var baseStats = GenerateBaseStatForItem(item.ItemLevel, itemType.BaseStatInitialValue);
             return baseStats;
+        }
+
+        public void CalculateItemsFinalPotential(Item item)
+        {
+            item.ItemPotential = constantsService.GetPotentialByItemLvlAndItemType(item.ItemLevel, item.ItemType);
+            ApplyRarityMultiplyer(item);
+        }
+
+        private void ApplyRarityMultiplyer(Item item)
+        {
+            var rarityBonus = constantsService.GetItemRarityBonuses().Where(x => x.RarityName.Equals(item.ItemRarity)).FirstOrDefault();
+            if (rarityBonus == null)
+            {
+                return;
+            }
+            int potentialAfterRarityMultiplyer = Convert.ToInt32(rarityBonus.PotentialMultiplyer * item.ItemPotential);
+            item.ItemPotential  = potentialAfterRarityMultiplyer;
         }
     }
 }

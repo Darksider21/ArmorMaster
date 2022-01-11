@@ -48,7 +48,7 @@ namespace ArmorMaster.Buisiness.Services
             var potentialToSpend = item.ItemPotential - originalStatsPotential;
             if (potentialToSpend <=0)
             {
-                await GenerateNewStatsForItemAsync(item.ItemId);
+                await GenerateNewBonusStatsForItemAsync(item.ItemId);
                 return;
             }
             var tempItem = new Item() { ItemPotential = potentialToSpend };
@@ -60,14 +60,14 @@ namespace ArmorMaster.Buisiness.Services
         }
 
 
-        public async Task<IEnumerable<ItemBonusStatModel>> GenerateNewStatsForItemAsync(int itemId)
+        public async Task<IEnumerable<ItemBonusStatModel>> GenerateNewBonusStatsForItemAsync(int itemId)
         {
             var item = await itemRepository.GetItemByIdAsync(itemId);
             if (item == null)
             {
                 throw new InvalidIdException();
             }
-            var newItemStats = CreateItemStatsForItem(item);
+            var newItemStats = CreateBonusStatsForItem(item);
             var originalItemStats = item.ItemBonusStats;
             MapNewItemStatsToOriginalStats(newItemStats, originalItemStats);
             await itemStatRepository.UpdateMultipleItemStatsAsync(originalItemStats);
@@ -77,7 +77,7 @@ namespace ArmorMaster.Buisiness.Services
 
         public  IEnumerable<ItemBonusStat> GenerateItemBonusStats(Item item)
         {
-            var itemStats =  CreateItemStatsForItem(item);
+            var itemStats =  CreateBonusStatsForItem(item);
 
 
             return itemStats;
@@ -138,15 +138,19 @@ namespace ArmorMaster.Buisiness.Services
 
         
 
-        private List<ItemBonusStat> CreateItemStatsForItem(Item item)
+        private List<ItemBonusStat> CreateBonusStatsForItem(Item item)
         {
             List<ItemBonusStat> itemStats = new List<ItemBonusStat>();
             var statCosts = constantsService.GetAvailiableItemStatCosts();
             
             var itemStatProportionModel = statCosts.Select(x => new ItemBonusStatProportionModel() {StatType = x.StatType , ProportionWeight = initialWeight });
+
             var modelWithAlocatedWeights = GiveBonusWeightToRandomStats(itemStatProportionModel).ToList();
+            GiveBonusWeightToRandomStatsByRarity(modelWithAlocatedWeights , item.ItemRarity);
+
             var sumOfWeight = modelWithAlocatedWeights.Sum(x => x.ProportionWeight);
             modelWithAlocatedWeights.ForEach(x => x.ChanceToBePicked = (x.ProportionWeight / sumOfWeight) * 100 );
+
             int unspentPotential = item.ItemPotential;
 
             var generationModel = statCosts.Select(x => new StatGeneratorModel()
@@ -190,47 +194,71 @@ namespace ArmorMaster.Buisiness.Services
                 itemStats.Add(generatedItemStat);
             }
             GenerateCritChanceForItem(item);
-
+            itemStats = item.ItemBonusStats.ToList();
 
             return itemStats;
         }
 
+        private void GiveBonusWeightToRandomStatsByRarity(List<ItemBonusStatProportionModel> modelWithAlocatedWeights, string itemRarity)
+        {
+            if (String.IsNullOrWhiteSpace(itemRarity))
+            {
+                return;
+            }
+            var currentRarityBonus =  constantsService.GetItemRarityBonuses().Where(x => x.RarityName.Equals(itemRarity)).FirstOrDefault();
+            foreach (var statType in modelWithAlocatedWeights)
+            {
+                foreach (var preferedBonusStat in currentRarityBonus.BonusStatPreferences)
+                {
+                    if (statType.StatType.Equals(preferedBonusStat))
+                    {
+                        statType.ProportionWeight *= currentRarityBonus.PreferedBonusStatsWeightIncreasePercentage;
+                    }
+                }
+            }
+            
+        }
+
         private void GenerateCritChanceForItem(Item item)
         {
+            var itemRarityBonus = constantsService.GetItemRarityBonuses().Where(x => x.RarityName.Equals(item.ItemRarity)).FirstOrDefault();
             string critChanceName = "Critical Chance";
             int critChance = 0;
             int minCrit = 0 , maxCrit = 0;
-            var itemsThatCanGenerateCrit = constantsService.GetItemTypesThatCanGenrateCrit().Where(x => item.ItemType.Contains(x));
+
+            if (itemRarityBonus != null)
+            {
+                minCrit = maxCrit += itemRarityBonus.BaseCriticalChanceBonus;
+            }
+            var itemsThatCanGenerateCrit = constantsService.GetItemTypesThatCanGenrateCrit().Where(x => item.ItemType.Contains(x)).ToList();
             var critChanceByLevel = constantsService.GetItemCritChanceByLevel().Where(x => x.ItemLevel.Equals(item.ItemLevel)).FirstOrDefault();
-            if (itemsThatCanGenerateCrit != null)
+            if (itemsThatCanGenerateCrit.Any())
             {
-                minCrit = critChanceByLevel.MinChance;
-                maxCrit = critChanceByLevel.MaxChance;
+                minCrit += critChanceByLevel.MinChance;
+                maxCrit += critChanceByLevel.MaxChance;
                 critChance = randomProvider.Next(minCrit, maxCrit + 1);
+                var test = new Random();
+                
             }
 
-            if (critChance > 0)
+            var existingCritChanceBonusStat = item.ItemBonusStats.Where(x => x.StatType.Equals(critChanceName)).FirstOrDefault();
+            if (existingCritChanceBonusStat == null)
             {
-                
-                
-                    var existingCritChanceBonusStat = item.ItemBonusStats.Where(x => x.StatType.Equals(critChanceName)).FirstOrDefault();
-                    if (existingCritChanceBonusStat == null)
-                    {
-                        var newCritChanceBonusStat = new ItemBonusStat() { Item = item, StatQuantity = critChance, StatType = critChanceName };
-                        item.ItemBonusStats.Add(newCritChanceBonusStat);
-                    }
-                    else
-                    {
-                        item.ItemBonusStats.Where(x => x.StatType.Equals(critChanceName)).FirstOrDefault().StatQuantity = critChance;
-
-                    }
-                
-                
+                var newCritChanceBonusStat = new ItemBonusStat() { Item = item, StatQuantity = critChance, StatType = critChanceName };
+                item.ItemBonusStats.Add(newCritChanceBonusStat);
             }
-            
+            else
+            {
+                foreach (var bonusStat in item.ItemBonusStats)
+                {
+                    if (bonusStat.StatType.Equals(critChanceName))
+                    {
+                        bonusStat.StatQuantity = critChance;
+                    }
+                }
 
-            
-            
+            }
+             
         }
 
         private IEnumerable<ItemBonusStatProportionModel> GiveBonusWeightToRandomStats(IEnumerable<ItemBonusStatProportionModel> itemStatProportionModel)

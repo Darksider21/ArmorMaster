@@ -13,4 +13,8 @@
     <ProjectReference Include="..\ArmorMaster.Data\ArmorMaster.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTO\ResponceDto\" />
+  </ItemGroup>
+
 </Project>

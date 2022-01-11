@@ -12,5 +12,7 @@ namespace ArmorMaster.Buisiness.Services.ServiceInterfaces
         public int GetNThTriangularNumber(int n);
         public Item ApplyChangeOfUpgradeLevelToItem(Item item, int upgradeDifference);
         public double GenerateBaseStatForItem(int itemLvl, double baseStatInitialValue);
+        public void CalculateItemsFinalBaseStats(Item item);
+        public void CalculateItemsFinalPotential(Item item);
     }
 }

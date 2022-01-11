@@ -2,23 +2,10 @@
 
 namespace ArmorMaster.Data.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class initialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "ItemStatTypes",
-                columns: table => new
-                {
-                    ItemStatTypeId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    StatName = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ItemStatTypes", x => x.ItemStatTypeId);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Players",
                 columns: table => new
@@ -38,7 +25,13 @@ namespace ArmorMaster.Data.Migrations
                 {
                     ItemId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ItemType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ItemRarity = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ItemPotential = table.Column<int>(type: "int", nullable: false),
+                    ItemLevel = table.Column<int>(type: "int", nullable: false),
+                    BaseStatType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BaseStatQuantity = table.Column<double>(type: "float", nullable: false),
+                    ItemUpgradeLevel = table.Column<int>(type: "int", nullable: false),
                     PlayerID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -56,26 +49,20 @@ namespace ArmorMaster.Data.Migrations
                 name: "ItemStats",
                 columns: table => new
                 {
-                    ItemStatID = table.Column<int>(type: "int", nullable: false)
+                    ItemBonusStatID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     StatQuantity = table.Column<double>(type: "float", nullable: false),
-                    ItemStatTypeId = table.Column<int>(type: "int", nullable: true),
+                    StatType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ItemId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ItemStats", x => x.ItemStatID);
+                    table.PrimaryKey("PK_ItemStats", x => x.ItemBonusStatID);
                     table.ForeignKey(
                         name: "FK_ItemStats_Items_ItemId",
                         column: x => x.ItemId,
                         principalTable: "Items",
                         principalColumn: "ItemId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ItemStats_ItemStatTypes_ItemStatTypeId",
-                        column: x => x.ItemStatTypeId,
-                        principalTable: "ItemStatTypes",
-                        principalColumn: "ItemStatTypeId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -88,11 +75,6 @@ namespace ArmorMaster.Data.Migrations
                 name: "IX_ItemStats_ItemId",
                 table: "ItemStats",
                 column: "ItemId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ItemStats_ItemStatTypeId",
-                table: "ItemStats",
-                column: "ItemStatTypeId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -102,9 +84,6 @@ namespace ArmorMaster.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Items");
-
-            migrationBuilder.DropTable(
-                name: "ItemStatTypes");
 
             migrationBuilder.DropTable(
                 name: "Players");
