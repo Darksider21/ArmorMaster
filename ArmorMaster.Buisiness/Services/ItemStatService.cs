@@ -36,29 +36,41 @@ namespace ArmorMaster.Buisiness.Services
             this.itemRepository = itemRepository;
         }
 
-        public  async Task GenerateLackingStatsForItemAsync(Item item)
+        public   void  AdjustItemsBonusStatsToPotentialChange(Item item)
         {
-            var Existingitem = await itemRepository.GetItemByIdAsync(item.ItemId);
-            if (Existingitem == null)
+            var potentialCostOfExistingBonusStats = GetItemPotentialByStats(item.ItemBonusStats);
+            var potentialDifference = item.ItemPotential - potentialCostOfExistingBonusStats;
+            if (potentialDifference == 0)
             {
-                throw new InvalidIdException();
-            }
-            var originalItemStats = item.ItemBonusStats;
-            var originalStatsPotential = GetItemPotentialByStats(originalItemStats);
-            var potentialToSpend = item.ItemPotential - originalStatsPotential;
-            if (potentialToSpend <=0)
-            {
-                await GenerateNewBonusStatsForItemAsync(item.ItemId);
                 return;
             }
-            var tempItem = new Item() { ItemPotential = potentialToSpend };
-            var additionalItemStats = GenerateItemBonusStats(tempItem);
-            AddNewStatsToPrevious(originalItemStats, additionalItemStats);
-            await itemStatRepository.UpdateMultipleItemStatsAsync(originalItemStats);
+            var tempItem = new Item()
+            {
+                ItemLevel = item.ItemLevel,
+                ItemPotential = Math.Abs(potentialDifference),
+                ItemRarity = item.ItemRarity,
+                ItemType = item.ItemType,
+                ItemUpgradeLevel = item.ItemUpgradeLevel,
+                EnchantmentLevel = item.EnchantmentLevel,
+                BaseStatQuantity = item.BaseStatQuantity,
+                BaseStatType = item.BaseStatType,
+                ItemBonusStats = new List<ItemBonusStat>()
+            };
+            var newTempItemStatList = CreateBonusStatsForItem(tempItem).ToList();
 
+            AddOrRemoveBonusStatsDependingOnPotentialDifference(item, potentialDifference, newTempItemStatList);
+
+            foreach (var originalStat in item.ItemBonusStats)
+            {
+                if (originalStat.StatQuantity < 0)
+                {
+                    originalStat.StatQuantity = 0;
+                }
+            }
 
         }
 
+        
 
         public async Task<IEnumerable<ItemBonusStatModel>> GenerateNewBonusStatsForItemAsync(int itemId)
         {
@@ -69,10 +81,17 @@ namespace ArmorMaster.Buisiness.Services
             }
             var newItemStats = CreateBonusStatsForItem(item);
             var originalItemStats = item.ItemBonusStats;
-            MapNewItemStatsToOriginalStats(newItemStats, originalItemStats);
-            await itemStatRepository.UpdateMultipleItemStatsAsync(originalItemStats);
+            if (originalItemStats.Any())
+            {
+                MapNewItemStatsToOriginalStats(newItemStats, originalItemStats);
+            }
+            else
+            {
+                item.ItemBonusStats = newItemStats.ToList();
+            }
+            await itemStatRepository.UpdateMultipleItemStatsAsync(item.ItemBonusStats);
 
-            return ObjectMapper.Mapper.Map<IEnumerable<ItemBonusStatModel>>(originalItemStats);
+            return ObjectMapper.Mapper.Map<IEnumerable<ItemBonusStatModel>>(item.ItemBonusStats);
         }
 
         public  IEnumerable<ItemBonusStat> GenerateItemBonusStats(Item item)
@@ -84,6 +103,35 @@ namespace ArmorMaster.Buisiness.Services
 
         }
         #region privateMethods
+        private static void AddOrRemoveBonusStatsDependingOnPotentialDifference(Item item, int potentialDifference, List<ItemBonusStat> newTempItemStatList)
+        {
+            if (potentialDifference > 0)
+            {
+                foreach (var aditionalStat in newTempItemStatList)
+                {
+                    foreach (var originalBonusStat in item.ItemBonusStats)
+                    {
+                        if (aditionalStat.StatType.Equals(originalBonusStat.StatType) && originalBonusStat.StatType != "Critical Chance")
+                        {
+                            originalBonusStat.StatQuantity += aditionalStat.StatQuantity;
+                        }
+                    }
+                }
+            }
+            if (potentialDifference < 0)
+            {
+                foreach (var aditionalStat in newTempItemStatList)
+                {
+                    foreach (var originalBonusStat in item.ItemBonusStats)
+                    {
+                        if (aditionalStat.StatType.Equals(originalBonusStat.StatType) && originalBonusStat.StatType != "Critical Chance")
+                        {
+                            originalBonusStat.StatQuantity -= aditionalStat.StatQuantity;
+                        }
+                    }
+                }
+            }
+        }
         private int GetItemPotentialByStats(ICollection<ItemBonusStat> originalStats)
         {
             int potential = 0;
@@ -102,37 +150,31 @@ namespace ArmorMaster.Buisiness.Services
 
             return potential;
         }
-        private static void AddNewStatsToPrevious(ICollection<ItemBonusStat> originalStats, IEnumerable<ItemBonusStat> additionalItemStats)
-        {
-            foreach (var aditionalItemStat in additionalItemStats)
-            {
-                foreach (var originalItemStat in originalStats)
-                {
-                    if (aditionalItemStat.StatType.Equals(originalItemStat.StatType))
-                    {
-                        originalItemStat.StatQuantity += aditionalItemStat.StatQuantity;
-
-
-                        if (originalItemStat.StatType.Equals("Critical Chance"))
-                        {
-                            originalItemStat.StatQuantity = Math.Round(originalItemStat.StatQuantity, 2);
-                        }
-                    }
-                }
-            }
-        }
+        
         private static void MapNewItemStatsToOriginalStats(List<ItemBonusStat> newItemStats, ICollection<ItemBonusStat> originalItemStats)
         {
             foreach (var newItemStat in newItemStats)
             {
-                foreach (var originalItem in originalItemStats)
+                if (!originalItemStats.Select(x => x.StatType).Contains(newItemStat.StatType))
                 {
-                    if (originalItem.StatType.Equals(newItemStat.StatType))
+                    originalItemStats.Add(newItemStat);
+                    newItemStats.Remove(newItemStat);
+                }
+            }
+
+            foreach (var newItemStat in newItemStats)
+            {
+                foreach (var originalItemStat in originalItemStats)
+                {
+                    if (newItemStat.StatType.Equals(originalItemStat.StatType))
                     {
-                        originalItem.StatQuantity = newItemStat.StatQuantity;
+                        originalItemStat.StatQuantity = newItemStat.StatQuantity;
                     }
                 }
             }
+
+
+
         }
 
 
@@ -193,8 +235,8 @@ namespace ArmorMaster.Buisiness.Services
                 
                 itemStats.Add(generatedItemStat);
             }
-            GenerateCritChanceForItem(item);
-            itemStats = item.ItemBonusStats.ToList();
+             var critChanceBonusStat =  GenerateCritChanceForItem(item);
+            itemStats.Add(critChanceBonusStat);
 
             return itemStats;
         }
@@ -219,12 +261,16 @@ namespace ArmorMaster.Buisiness.Services
             
         }
 
-        private void GenerateCritChanceForItem(Item item)
+        private ItemBonusStat GenerateCritChanceForItem(Item item)
         {
+
             var itemRarityBonus = constantsService.GetItemRarityBonuses().Where(x => x.RarityName.Equals(item.ItemRarity)).FirstOrDefault();
             string critChanceName = "Critical Chance";
             int critChance = 0;
             int minCrit = 0 , maxCrit = 0;
+            ItemBonusStat newCritChanceBonusStat = null;
+
+
 
             if (itemRarityBonus != null)
             {
@@ -244,21 +290,19 @@ namespace ArmorMaster.Buisiness.Services
             var existingCritChanceBonusStat = item.ItemBonusStats.Where(x => x.StatType.Equals(critChanceName)).FirstOrDefault();
             if (existingCritChanceBonusStat == null)
             {
-                var newCritChanceBonusStat = new ItemBonusStat() { Item = item, StatQuantity = critChance, StatType = critChanceName };
-                item.ItemBonusStats.Add(newCritChanceBonusStat);
+                 newCritChanceBonusStat = new ItemBonusStat() { Item = item, StatQuantity = critChance, StatType = critChanceName };
+                
             }
             else
             {
-                foreach (var bonusStat in item.ItemBonusStats)
-                {
-                    if (bonusStat.StatType.Equals(critChanceName))
-                    {
-                        bonusStat.StatQuantity = critChance;
-                    }
-                }
+
+                var critBonusStat = existingCritChanceBonusStat;
+                critBonusStat.StatQuantity = critChance;
+                newCritChanceBonusStat = critBonusStat;
+                
 
             }
-             
+            return newCritChanceBonusStat;
         }
 
         private IEnumerable<ItemBonusStatProportionModel> GiveBonusWeightToRandomStats(IEnumerable<ItemBonusStatProportionModel> itemStatProportionModel)

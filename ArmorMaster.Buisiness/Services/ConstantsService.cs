@@ -13,6 +13,18 @@ namespace ArmorMaster.Buisiness.Services
     public class ConstantsService : IConstantsService
     {
 
+        private readonly List<EnchantmentBonusesForItemModel> enchantmentBonusesForItemList = new List<EnchantmentBonusesForItemModel>()
+        {
+            new EnchantmentBonusesForItemModel(){ItemType = "Weapon" , AffectedByEnchantmentStatType = "Base Stat" , InitialBonusPercentage = 10 , StepIncreasePerLevel = 5},
+            new EnchantmentBonusesForItemModel(){ItemType = "Helmet" , AffectedByEnchantmentStatType = "Base Stat" , InitialBonusPercentage = 10 , StepIncreasePerLevel = 5},
+            new EnchantmentBonusesForItemModel(){ItemType = "Arms" , AffectedByEnchantmentStatType = "Base Stat" , InitialBonusPercentage = 10 , StepIncreasePerLevel = 5},
+            new EnchantmentBonusesForItemModel(){ItemType = "Chest" , AffectedByEnchantmentStatType = "Base Stat" , InitialBonusPercentage = 10 , StepIncreasePerLevel = 5},
+            new EnchantmentBonusesForItemModel(){ItemType = "Legs" , AffectedByEnchantmentStatType = "Base Stat" , InitialBonusPercentage = 10 , StepIncreasePerLevel = 5},
+            new EnchantmentBonusesForItemModel(){ItemType = "Belt" , AffectedByEnchantmentStatType = "Health" , InitialBonusPercentage = 10 , StepIncreasePerLevel = 5},
+            new EnchantmentBonusesForItemModel(){ItemType = "Cloak" , AffectedByEnchantmentStatType = "Base Stat" , InitialBonusPercentage = 10 , StepIncreasePerLevel = 5},
+            new EnchantmentBonusesForItemModel(){ItemType = "Ring" , AffectedByEnchantmentStatType = "Potential" , InitialBonusPercentage = 10 , StepIncreasePerLevel = 5},
+            new EnchantmentBonusesForItemModel(){ItemType = "Talisman" , AffectedByEnchantmentStatType = "Base Stat" , InitialBonusPercentage = 10 , StepIncreasePerLevel = 5},
+        };
 
         private readonly List<RarityBonusesForItemModel> rarityBonusesForItemList = new List<RarityBonusesForItemModel>()
         {
@@ -112,6 +124,7 @@ namespace ArmorMaster.Buisiness.Services
             "Arms",
             "Talisman"
         };
+        private int maximumItemEnchantmentLevel = 7;
 
         public IEnumerable<int> GetAvailiableItemLevels()
         {
@@ -189,6 +202,16 @@ namespace ArmorMaster.Buisiness.Services
         public IEnumerable<string> GetItemsRarityTypes()
         {
             return rarityBonusesForItemList.Select(x => x.RarityName).ToList();
+        }
+
+        public IEnumerable<EnchantmentBonusesForItemModel> GetItemEnchantmentBonuses()
+        {
+            return enchantmentBonusesForItemList.ToList();
+        }
+
+        public int GetMaximumItemEnchantmentLevel()
+        {
+            return maximumItemEnchantmentLevel;
         }
     }
 }
