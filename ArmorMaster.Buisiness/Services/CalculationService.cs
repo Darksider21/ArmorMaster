@@ -55,12 +55,45 @@ namespace ArmorMaster.Buisiness.Services
         {
             return ( n*n + n) / 2;
         }
+        public void CalculateItemsFinalPotential(Item item)
+        {
+            item.ItemPotential = constantsService.GetPotentialByItemLvlAndItemType(item.ItemLevel, item.ItemType);
+            ApplyRarityMultiplyerToPotential(item);
+            ApplyEnchantmentMultiplyerToPotential(item);
+        }
+
+        
 
         public void CalculateItemsFinalBaseStats(Item item)
         {
+            CalculateItemsRawBaseStats(item);
             CalculateBaseStatFromUpgradeLevels(item);
             CalculateBaseStatFromRarity(item);
+            CalculateBaseStatFromEnchantment(item);
             item.BaseStatQuantity = Math.Round(item.BaseStatQuantity, 2);
+        }
+        #region BaseStatCalculations
+        private void CalculateBaseStatFromEnchantment(Item item)
+        {
+            if (item.EnchantmentLevel <= 0)
+            {
+                return;
+            }
+            var enchantmentBonus = constantsService.GetItemEnchantmentBonuses().Where(x => x.ItemType.Equals(item.ItemType)).FirstOrDefault();
+            if (enchantmentBonus == null || enchantmentBonus.AffectedByEnchantmentStatType != "Base Stat")
+            {
+                return;
+            }
+            double multiplyerStepByLevel = 0;
+            if (item.EnchantmentLevel > 1)
+            {
+                multiplyerStepByLevel = enchantmentBonus.StepIncreasePerLevel * item.EnchantmentLevel;
+
+            }
+            var baseEnchantmentByLevelMultiplyer = enchantmentBonus.InitialBonusPercentage * item.EnchantmentLevel;
+            var enchantmentMuliplyer = ((baseEnchantmentByLevelMultiplyer + multiplyerStepByLevel) / 100) + 1;
+            var baseStatAfterEnchantmentBonus = item.BaseStatQuantity * enchantmentMuliplyer;
+            item.BaseStatQuantity = baseStatAfterEnchantmentBonus;
         }
 
         private void CalculateBaseStatFromRarity(Item item)
@@ -79,26 +112,40 @@ namespace ArmorMaster.Buisiness.Services
             var itemsUpgradeLevels = upgradeLevels.Where(x => x.UpgradeLevel <= item.ItemUpgradeLevel).ToList();
             double sumOfcurrentUpgradeMultiplyers = itemsUpgradeLevels.Sum(x => x.BaseStatIncreasePercentage);
             double baseStatMultiplyerFromUpgradeLevels = (sumOfcurrentUpgradeMultiplyers / 100) + 1;
+            var quantityAfterUpgradeLevels = item.BaseStatQuantity * baseStatMultiplyerFromUpgradeLevels;
 
-            var itemsBaseStats = CalculateItemsRawBaseStats(item);
-
-            item.BaseStatQuantity =  (itemsBaseStats * baseStatMultiplyerFromUpgradeLevels);
+            item.BaseStatQuantity = quantityAfterUpgradeLevels;
         }
 
-        private double CalculateItemsRawBaseStats(Item item)
+        private void CalculateItemsRawBaseStats(Item item)
         {
-            var itemType =  constantsService.GetAvailiableItemTypes().Where(x => x.Type.Equals(item.ItemType)).FirstOrDefault();
+            var itemType = constantsService.GetAvailiableItemTypes().Where(x => x.Type.Equals(item.ItemType)).FirstOrDefault();
             var baseStats = GenerateBaseStatForItem(item.ItemLevel, itemType.BaseStatInitialValue);
-            return baseStats;
+            item.BaseStatQuantity = baseStats;
         }
+        #endregion
 
-        public void CalculateItemsFinalPotential(Item item)
+
+        #region PotentialCalculations
+        private void ApplyEnchantmentMultiplyerToPotential(Item item)
         {
-            item.ItemPotential = constantsService.GetPotentialByItemLvlAndItemType(item.ItemLevel, item.ItemType);
-            ApplyRarityMultiplyer(item);
-        }
+            if (item.EnchantmentLevel <=0)
+            {
+                return;
+            }
+            var enchantmentBonus = constantsService.GetItemEnchantmentBonuses().Where(x => x.ItemType.Equals(item.ItemType)).FirstOrDefault();
+            if (enchantmentBonus.AffectedByEnchantmentStatType != "Potential")
+            {
+                return;
+            }
+            var multiplyerStepByLevel = enchantmentBonus.StepIncreasePerLevel * (item.EnchantmentLevel - 1);
+            var baseMultiplyerPerLevel = enchantmentBonus.InitialBonusPercentage * item.EnchantmentLevel;
+            var enchantmentMuliplyer = ((baseMultiplyerPerLevel + multiplyerStepByLevel) / 100) + 1;
+            var potentialAfterEnchantmentMultiplyer = Convert.ToInt32(item.ItemPotential * enchantmentMuliplyer);
+            item.ItemPotential = potentialAfterEnchantmentMultiplyer;
 
-        private void ApplyRarityMultiplyer(Item item)
+        }
+        private void ApplyRarityMultiplyerToPotential(Item item)
         {
             var rarityBonus = constantsService.GetItemRarityBonuses().Where(x => x.RarityName.Equals(item.ItemRarity)).FirstOrDefault();
             if (rarityBonus == null)
@@ -106,7 +153,11 @@ namespace ArmorMaster.Buisiness.Services
                 return;
             }
             int potentialAfterRarityMultiplyer = Convert.ToInt32(rarityBonus.PotentialMultiplyer * item.ItemPotential);
-            item.ItemPotential  = potentialAfterRarityMultiplyer;
+            item.ItemPotential = potentialAfterRarityMultiplyer;
         }
+        #endregion
+
+
+
     }
 }

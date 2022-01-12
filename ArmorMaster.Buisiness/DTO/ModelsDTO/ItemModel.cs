@@ -17,6 +17,8 @@ namespace ArmorMaster.Buisiness.DTO.ModelsDTO
         public string BaseStatType { get; set; }
         public double BaseStatQuantity { get; set; }
         public int ItemUpgradeLevel { get; set; }
+        public int EnchantmentLevel { get; set; }
+
 
 
 

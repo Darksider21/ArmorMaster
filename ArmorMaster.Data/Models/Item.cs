@@ -16,6 +16,7 @@ namespace ArmorMaster.Data.Models
         public string BaseStatType { get; set; }
         public double BaseStatQuantity { get; set; }
         public int ItemUpgradeLevel { get; set; }
+        public int EnchantmentLevel { get; set; }
 
 
         public ICollection<ItemBonusStat> ItemBonusStats { get; set; }

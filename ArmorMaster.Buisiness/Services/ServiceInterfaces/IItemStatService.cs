@@ -12,6 +12,6 @@ namespace ArmorMaster.Buisiness.Services.ServiceInterfaces
     {
         public IEnumerable<ItemBonusStat> GenerateItemBonusStats(Item item);
         public Task<IEnumerable<ItemBonusStatModel>> GenerateNewBonusStatsForItemAsync(int itemId);
-        public Task GenerateLackingStatsForItemAsync(Item item);
+        public void AdjustItemsBonusStatsToPotentialChange(Item item);
     }
 }

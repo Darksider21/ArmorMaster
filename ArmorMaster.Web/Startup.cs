@@ -58,6 +58,7 @@ namespace ArmorMaster.Web
             services.AddScoped<ICalculationService, CalculationService>();
             services.AddScoped<IItemRarityService, ItemRarityService>();
             services.AddScoped<IItemUpgradeService, ItemUpgradeService>();
+            services.AddScoped<IItemEnchantmentService, ItemEnchantmentService>();
 
         }
 

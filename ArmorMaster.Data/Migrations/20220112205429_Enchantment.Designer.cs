@@ -4,14 +4,16 @@ using ArmorMaster.Data.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ArmorMaster.Data.Migrations
 {
     [DbContext(typeof(ArmorMasterContext))]
-    partial class ArmorMasterContextModelSnapshot : ModelSnapshot
+    [Migration("20220112205429_Enchantment")]
+    partial class Enchantment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -16,6 +16,7 @@ namespace ArmorMaster.Buisiness.Services.ServiceInterfaces
         public IEnumerable<ItemStatCost> GetAvailiableItemStatCosts();
         public IEnumerable<ItemCritChanceByLevelModel> GetItemCritChanceByLevel();
         public IEnumerable<RarityBonusesForItemModel> GetItemRarityBonuses();
+        public IEnumerable<EnchantmentBonusesForItemModel> GetItemEnchantmentBonuses();
         public IEnumerable<string> GetItemsRarityTypes();
         
         public IEnumerable<string> GetItemTypesThatCanGenrateCrit();
@@ -24,6 +25,7 @@ namespace ArmorMaster.Buisiness.Services.ServiceInterfaces
 
         public bool ItemTypeExists(string type);
         public bool ItemLevelIsValid(int lvl);
+        public int GetMaximumItemEnchantmentLevel();
         
     }
 }
