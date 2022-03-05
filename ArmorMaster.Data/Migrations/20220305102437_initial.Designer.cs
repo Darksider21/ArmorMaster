@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ArmorMaster.Data.Migrations
 {
     [DbContext(typeof(ArmorMasterContext))]
-    [Migration("20220112205429_Enchantment")]
-    partial class Enchantment
+    [Migration("20220305102437_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

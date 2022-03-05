@@ -2,7 +2,7 @@
 
 namespace ArmorMaster.Data.Migrations
 {
-    public partial class initialCreate : Migration
+    public partial class initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -32,6 +32,7 @@ namespace ArmorMaster.Data.Migrations
                     BaseStatType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     BaseStatQuantity = table.Column<double>(type: "float", nullable: false),
                     ItemUpgradeLevel = table.Column<int>(type: "int", nullable: false),
+                    EnchantmentLevel = table.Column<int>(type: "int", nullable: false),
                     PlayerID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
